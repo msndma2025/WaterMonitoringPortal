@@ -416,27 +416,7 @@ const MapContainer = () => {
       console.warn('Could not load headworks:', e.message);
     }
 
-    // Combined Rivers
-    try {
-      const riversUrl = buildWfsUrl('water_monitoring', 'rivers');
-      const resp = await fetch(riversUrl);
-      if (resp.ok) {
-        const geojson = await resp.json();
-        if (!map.getSource('rivers-source')) {
-          map.addSource('rivers-source', { type: 'geojson', data: geojson });
-          map.addLayer({
-            id: 'rivers-layer',
-            type: 'line',
-            source: 'rivers-source',
-            layout: { visibility: 'none', 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#0066FF', 'line-width': 3, 'line-opacity': 0.9 },
-          });
-          console.log('✓ Rivers layer loaded');
-        }
-      }
-    } catch (e) {
-      console.warn('Could not load rivers:', e.message);
-    }
+    // Combined Rivers — removed from WFS, now loaded separately via setupMajorRivers
 
     // Flood Extent
     try {
@@ -467,6 +447,71 @@ const MapContainer = () => {
       console.warn('Could not load flood extent:', e.message);
     }
   }, [loadMapImage]);
+
+  // Setup Major Rivers layer (local GeoJSON)
+  const setupMajorRivers = useCallback(async (map) => {
+    try {
+      const resp = await fetch('/Major_Rivers.geojson');
+      if (resp.ok) {
+        const geojson = await resp.json();
+        if (!map.getSource('rivers-source')) {
+          map.addSource('rivers-source', { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: 'rivers-layer',
+            type: 'line',
+            source: 'rivers-source',
+            layout: { visibility: 'none', 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#5cb8ff', 'line-width': 3, 'line-opacity': 0.9 },
+          });
+
+          // Build point features at midpoint of each line for labels
+          const labelFeatures = geojson.features
+            .filter(f => f.properties.name)
+            .map(f => {
+              const coords = f.geometry.type === 'MultiLineString'
+                ? f.geometry.coordinates[0]
+                : f.geometry.coordinates;
+              const mid = coords[Math.floor(coords.length / 2)];
+              return {
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: mid },
+                properties: { name: f.properties.name },
+              };
+            });
+
+          map.addSource('rivers-labels-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: labelFeatures },
+          });
+
+          map.addLayer({
+            id: 'rivers-labels',
+            type: 'symbol',
+            source: 'rivers-labels-src',
+            layout: {
+              visibility: 'none',
+              'text-field': ['get', 'name'],
+              'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
+              'text-size': 12,
+              'text-allow-overlap': false,
+              'text-padding': 5,
+              'text-offset': [0, -0.8],
+              'text-anchor': 'bottom',
+            },
+            paint: {
+              'text-color': '#60a5fa',
+              'text-halo-color': 'rgba(0, 0, 0, 0.9)',
+              'text-halo-width': 2,
+            },
+          });
+
+          console.log('✓ Major Rivers layer loaded');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load Major Rivers:', e.message);
+    }
+  }, []);
 
   // Setup individual river WFS layers
   const setupRiverLayers = useCallback(async (map) => {
@@ -862,7 +907,7 @@ const MapContainer = () => {
       'futureDams': 'future-layer',
       'indianDams': 'indian-layer',
       'headworks': 'headworks-layer',
-      'rivers': 'rivers-layer',
+      'rivers': ['rivers-layer', 'rivers-labels'],
       'riverTributaries': ['river-tributaries-layer', 'river-tributaries-labels'],
       'riverBasins': ['river-basins-fill', 'river-basins-outline'],
       'floodExtent': ['floodextend-layer', 'floodextend-outline'],
@@ -887,11 +932,16 @@ const MapContainer = () => {
     // Lazy load WFS layers when first toggled on
     if (visible && !loadedLayersCache.has(layerId)) {
       // WFS Layers that need to be fetched
-      if (layerId === 'headworks' || layerId === 'rivers' || layerId === 'floodExtent') {
+      if (layerId === 'headworks' || layerId === 'floodExtent') {
         await setupWfsLayers(map);
         loadedLayersCache.add('headworks');
-        loadedLayersCache.add('rivers');
         loadedLayersCache.add('floodExtent');
+      }
+
+      // Major Rivers layer (local GeoJSON)
+      if (layerId === 'rivers') {
+        await setupMajorRivers(map);
+        loadedLayersCache.add('rivers');
       }
       
       // Individual river layers
@@ -1005,7 +1055,7 @@ const MapContainer = () => {
       // Direct layer ID match
       map.setLayoutProperty(layerId, 'visibility', visibility);
     }
-  }, [setupWfsLayers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -1099,7 +1149,7 @@ const MapContainer = () => {
       'futureDams': ['future-layer'],
       'indianDams': ['indian-layer'],
       'headworks': ['headworks-layer'],
-      'rivers': ['rivers-layer'],
+      'rivers': ['rivers-layer', 'rivers-labels'],
       'riverTributaries': ['river-tributaries-layer', 'river-tributaries-labels'],
       'riverBasins': ['river-basins-fill', 'river-basins-outline'],
       'floodExtent': ['floodextend-layer', 'floodextend-outline'],

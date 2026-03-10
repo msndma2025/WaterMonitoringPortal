@@ -7,3 +7,4 @@ export { default as PrecipitationCards } from './PrecipitationCards';
 export { default as IrrigationCards } from './IrrigationCards';
 export { default as SnowCoverCards } from './SnowCoverCards';
 export { default as DamCards } from './DamCards';
+export { default as IndustrialCards } from './IndustrialCards';

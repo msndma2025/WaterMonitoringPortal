@@ -1,4 +1,4 @@
-import { StatCards, SlidesGallery, LegendCards, PrecipitationCards, IrrigationCards, SnowCoverCards, DamCards } from '../Charts';
+import { StatCards, SlidesGallery, LegendCards, PrecipitationCards, IrrigationCards, SnowCoverCards, DamCards, IndustrialCards } from '../Charts';
 import { useMapStore } from '../../store/mapStore';
 import './MediaPanel.css';
 
@@ -9,6 +9,7 @@ const RightPanel = () => {
   const showIrrigation = layerVisibility.mainCanals || layerVisibility.branchCanals || layerVisibility.distributaryCanals;
   const showSnowCover = layerVisibility.snowCover;
   const showDams = layerVisibility.headworks || layerVisibility.ongoingDams || layerVisibility.underConstruction || layerVisibility.futureDams || layerVisibility.indianDams;
+  const showIndustries = layerVisibility.industries;
 
   const renderCards = () => {
     if (showBasins) return <LegendCards />;
@@ -16,6 +17,7 @@ const RightPanel = () => {
     if (showPrecip) return <PrecipitationCards />;
     if (showIrrigation) return <IrrigationCards />;
     if (showDams) return <DamCards />;
+    if (showIndustries) return <IndustrialCards />;
     return <StatCards />;
   };
 
