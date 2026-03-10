@@ -1,0 +1,299 @@
+.map-legend {
+  position: absolute;
+  bottom: 30px;
+  right: 10px;
+  z-index: 5;
+  background: rgba(12, 20, 36, 0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  min-width: 250px;
+  max-width: 310px;
+  overflow: hidden;
+  cursor: grab;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.map-legend:hover {
+  border-color: rgba(0, 229, 255, 0.22);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(0, 229, 255, 0.06);
+}
+
+.map-legend:active {
+  cursor: grabbing;
+}
+
+.map-legend.minimized {
+  min-width: auto;
+  max-width: none;
+}
+
+.legend-header {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+}
+
+.legend-header:active {
+  cursor: grabbing;
+}
+
+.legend-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-grip {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+}
+
+.legend-minimize-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.legend-minimize-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-primary);
+}
+
+.legend-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.legend-content {
+  padding: 0.25rem 0;
+}
+
+.legend-item {
+  padding: 0.4rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-item:last-child {
+  border-bottom: none;
+}
+
+.legend-title {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.2px;
+}
+
+/* Gradient Legend */
+.legend-gradient {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.gradient-bar {
+  height: 14px;
+  border-radius: 4px;
+}
+
+.gradient-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.gradient-labels span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Line Legend */
+.legend-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.line-sample {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* Rivers Section */
+.legend-rivers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.river-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.river-color {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.river-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .map-legend {
+    bottom: 50px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    min-width: auto;
+  }
+}
+
+/* Category Legend (Catchment Basins) */
+.legend-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.category-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  margin-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.category-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background 0.2s ease, transform 0.2s ease;
+  border-radius: 5px;
+  margin: 0 -0.15rem;
+}
+
+.category-row:last-child {
+  border-bottom: none;
+}
+
+.category-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
+}
+
+.category-row-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.category-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.category-row:hover .category-swatch {
+  transform: scale(1.2);
+}
+
+.category-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #dcdcdc;
+  white-space: nowrap;
+}
+
+.category-bar-wrap {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 40px;
+}
+
+.category-bar {
+  height: 100%;
+  border-radius: 3px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.category-row:hover .category-bar {
+  opacity: 1;
+}
+
+.category-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-primary, #00e5ff);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.category-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.15rem 0.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.category-total-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-total-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.5rem;
+}

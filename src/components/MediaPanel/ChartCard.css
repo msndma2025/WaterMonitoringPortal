@@ -1,0 +1,76 @@
+.chart-card {
+  min-height: 280px;
+}
+
+.chart-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chart-tab {
+  padding: 0.375rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chart-tab:hover {
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.chart-tab.active {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 255, 204, 0.2) 100%);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.enlarge-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.enlarge-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.chart-embed {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.chart-embed iframe {
+  border: none;
+  background: transparent;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .chart-card {
+    min-height: 200px;
+  }
+
+  .chart-tab {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}

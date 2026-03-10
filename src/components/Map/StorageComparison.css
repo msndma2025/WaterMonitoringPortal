@@ -1,0 +1,136 @@
+.storage-comparison {
+  position: absolute;
+  top: 10px;
+  left: 60px;
+  z-index: 5;
+  background: rgba(10, 14, 23, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: var(--shadow-lg);
+  min-width: 260px;
+  max-width: 320px;
+  overflow: hidden;
+}
+
+.storage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.storage-header h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin: 0;
+}
+
+.clear-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.clear-btn:hover {
+  background: rgba(255, 77, 143, 0.2);
+  border-color: var(--accent-warm);
+  color: var(--accent-warm);
+}
+
+.storage-list {
+  padding: 0.5rem 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.storage-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  transition: background var(--transition-fast);
+}
+
+.storage-item:hover {
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.dam-name {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.storage-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.storage-value {
+  font-size: 0.8rem;
+  color: var(--accent-secondary);
+  font-weight: 500;
+}
+
+.remove-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+}
+
+.remove-btn:hover {
+  background: rgba(255, 77, 143, 0.2);
+  color: var(--accent-warm);
+}
+
+.storage-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.total-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.total-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+@media (max-width: 768px) {
+  .storage-comparison {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+    min-width: auto;
+  }
+}

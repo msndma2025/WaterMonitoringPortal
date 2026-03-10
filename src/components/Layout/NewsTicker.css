@@ -1,0 +1,56 @@
+/* ====== NEWS TICKER ====== */
+.news-ticker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 34px;
+  background: var(--surface-primary);
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+}
+
+.news-ticker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--maroon-600), transparent);
+  opacity: 0.4;
+}
+
+.news-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  padding: 0 1.5rem;
+}
+
+.news-ticker-content span {
+  flex-shrink: 0;
+}
+
+.ticker-separator {
+  color: var(--maroon-400);
+  font-size: 0.55rem;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .news-ticker {
+    height: 28px;
+  }
+
+  .news-ticker-content {
+    font-size: 0.65rem;
+  }
+}
