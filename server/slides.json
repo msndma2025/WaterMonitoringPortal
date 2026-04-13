@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "id": "1773213345027",
+    "title": "1",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1773213345013-514634192.png",
+    "originalName": "1.png",
+    "createdAt": "2026-03-11T07:15:45.027Z",
+    "order": 0
+  },
+  {
+    "id": "1773213353877",
+    "title": "2",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1773213353864-53139548.png",
+    "originalName": "2.png",
+    "createdAt": "2026-03-11T07:15:53.877Z",
+    "order": 1
+  },
+  {
+    "id": "1773213364941",
+    "title": "3",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1773213364930-717595008.png",
+    "originalName": "3.png",
+    "createdAt": "2026-03-11T07:16:04.941Z",
+    "order": 2
+  },
+  {
+    "id": "1773213389559",
+    "title": "4",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1773213389554-203981466.png",
+    "originalName": "4.png",
+    "createdAt": "2026-03-11T07:16:29.559Z",
+    "order": 3
+  },
+  {
+    "id": "1773213397961",
+    "title": "5",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1773213397956-655561941.png",
+    "originalName": "5.png",
+    "createdAt": "2026-03-11T07:16:37.961Z",
+    "order": 4
+  }
+]
