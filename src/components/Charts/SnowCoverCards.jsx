@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './LegendCards.css';
 
 const SNOW_ITEMS = [
-  { id: 'indus', label: 'Indus', maf: 75, color: '#60a5fa', icon: 'fa-solid fa-mountain-sun', gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f699 100%)' },
-  { id: 'jhelum', label: 'Jhelum', maf: 14, color: '#34d399', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #34d399 0%, #10b98199 100%)' },
-  { id: 'chenab', label: 'Chenab', maf: 13, color: '#fbbf24', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b99 100%)' },
-  { id: 'total', label: 'Total', maf: 102, color: '#e0e7ff', icon: 'fa-solid fa-snowflake', gradient: 'linear-gradient(135deg, #e0e7ff 0%, #a5b4fc99 100%)' },
+  { id: 'indus', label: 'Indus', maf: 76, color: '#60a5fa', icon: 'fa-solid fa-mountain-sun', gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f699 100%)' },
+  { id: 'jhelum', label: 'Jhelum', maf: 16, color: '#34d399', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #34d399 0%, #10b98199 100%)' },
+  { id: 'chenab', label: 'Chenab', maf: 15, color: '#fbbf24', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b99 100%)' },
+  { id: 'total', label: 'Total', maf: 107, color: '#e0e7ff', icon: 'fa-solid fa-snowflake', gradient: 'linear-gradient(135deg, #e0e7ff 0%, #a5b4fc99 100%)' },
 ];
 
 const AnimatedNumber = ({ value, duration = 1800 }) => {

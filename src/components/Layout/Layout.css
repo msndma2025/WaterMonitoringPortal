@@ -36,7 +36,7 @@
 
 .main-left {
   display: grid;
-  grid-template-rows: 1.2fr 1fr;
+  grid-template-rows: 1.7fr 1fr;
   gap: var(--gap);
   min-height: 0;
   overflow: hidden;

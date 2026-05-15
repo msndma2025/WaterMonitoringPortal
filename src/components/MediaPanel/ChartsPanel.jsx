@@ -13,17 +13,20 @@ const ChartsPanel = () => {
   const [activeChartTab, setActiveChartTab] = useState('rcp');
   const [rcpData, setRcpData] = useState(null);
   const [projectionData, setProjectionData] = useState(null);
+  const [comparisonData, setComparisonData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const [rcp, proj] = await Promise.all([
+      const [rcp, proj, comp] = await Promise.all([
         fetchAndParseCSV('/Water_RCP_Scenarios.csv'),
         fetchAndParseCSV('/Water_Projection_data.csv'),
+        fetchAndParseCSV('/Comparison_Graph.csv'),
       ]);
       setRcpData(rcp);
       setProjectionData(proj);
+      setComparisonData(comp);
       setLoading(false);
     })();
   }, []);
@@ -124,6 +127,30 @@ const ChartsPanel = () => {
     };
   }
 
+  function getComparisonChartData() {
+    if (!comparisonData) return null;
+    const rows = comparisonData.filter(
+      (r) => r['Month'] && r['Month'] !== 'Total Inflow at RIMs',
+    );
+    return {
+      years: rows.map((r) => r['Month']),
+      series: [
+        {
+          id: 'inflow2025',
+          name: '2025 Inflow (MAF)',
+          color: '#22d3ee',
+          data: rows.map((r) => num(r['2025 Inflow (MAF)'])),
+        },
+        {
+          id: 'inflow2026',
+          name: '2026 Inflow (MAF)',
+          color: '#f472b6',
+          data: rows.map((r) => num(r['2026 Inflow (MAF)'])),
+        },
+      ],
+    };
+  }
+
   if (loading) {
     return (
       <div className="charts-panel-wrap">
@@ -135,15 +162,33 @@ const ChartsPanel = () => {
     );
   }
 
-  const isRcp = activeChartTab === 'rcp';
+  const chartConfig = {
+    rcp: {
+      data: getRcpChartData(),
+      title: 'Water Resources – RCP Scenarios',
+      subtitle: '1970 – 2050 · Normalized per-series comparison',
+    },
+    projection: {
+      data: getProjectionChartData(),
+      title: 'Water Projection 2025–2050',
+      subtitle: 'Supply vs Demand Forecast',
+    },
+    comparison: {
+      data: getComparisonChartData(),
+      title: 'Monthly Inflow Comparison',
+      subtitle: '2025 vs 2026 · Inflow at RIMs (MAF)',
+    },
+  };
+
+  const current = chartConfig[activeChartTab] || chartConfig.rcp;
 
   return (
     <div className="charts-panel-wrap">
       <TimeSeriesChart
         key={activeChartTab}
-        data={isRcp ? getRcpChartData() : getProjectionChartData()}
-        title={isRcp ? 'Water Resources – RCP Scenarios' : 'Water Projection 2025–2050'}
-        subtitle={isRcp ? '1970 – 2050 · Normalized per-series comparison' : 'Supply vs Demand Forecast'}
+        data={current.data}
+        title={current.title}
+        subtitle={current.subtitle}
         onTabChange={setActiveChartTab}
         activeTab={activeChartTab}
       />

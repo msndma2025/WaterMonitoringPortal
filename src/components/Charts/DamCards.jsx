@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './LegendCards.css';
 
 const DAM_ITEMS = [
-  { id: 'tarbela', label: 'Tarbela', maf: 5.6, color: '#60a5fa', icon: 'fa-solid fa-dam', gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f699 100%)' },
-  { id: 'mangla', label: 'Mangla', maf: 7.4, color: '#34d399', icon: 'fa-solid fa-dam', gradient: 'linear-gradient(135deg, #34d399 0%, #10b98199 100%)' },
+  { id: 'tarbela', label: 'Tarbela', maf: 5.2, color: '#60a5fa', icon: 'fa-solid fa-dam', gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f699 100%)' },
+  { id: 'mangla', label: 'Mangla', maf: 7.0, color: '#34d399', icon: 'fa-solid fa-dam', gradient: 'linear-gradient(135deg, #34d399 0%, #10b98199 100%)' },
   { id: 'chashma', label: 'Chashma', maf: 0.84, color: '#fbbf24', icon: 'fa-solid fa-dam', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b99 100%)' },
-  { id: 'total', label: 'Total Surface Storage', maf: 13.84, color: '#e0e7ff', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #e0e7ff 0%, #a5b4fc99 100%)' },
+  { id: 'total', label: 'Total Surface Storage', maf: 13.04, color: '#e0e7ff', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #e0e7ff 0%, #a5b4fc99 100%)' },
 ];
 
 const AnimatedNumber = ({ value, duration = 1800 }) => {

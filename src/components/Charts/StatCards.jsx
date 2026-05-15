@@ -7,7 +7,7 @@ const STATS = [
   {
     id: 'totalStorage',
     label: 'River Inflows',
-    value: 141.2,
+    value: '140–142',
     unit: 'MAF',
     change: +2.3,
     icon: 'fa-solid fa-water',
@@ -18,7 +18,7 @@ const STATS = [
   {
     id: 'precipitation',
     label: 'Rain in Lower Basin',
-    value: 35,
+    value: 30,
     unit: 'MAF',
     change: +12,
     icon: 'fa-solid fa-cloud-showers-heavy',
@@ -29,7 +29,7 @@ const STATS = [
   {
     id: 'evaporation',
     label: 'Ground Water Extraction',
-    value: 50,
+    value: 52,
     unit: 'MAF',
     change: +0.5,
     icon: 'fa-solid fa-arrow-up-from-ground-water',
@@ -40,7 +40,7 @@ const STATS = [
   {
     id: 'rainField',
     label: 'Rains in Field',
-    value: 13,
+    value: 10,
     unit: 'mm',
     change: +1.2,
     icon: 'fa-solid fa-cloud-rain',
@@ -51,7 +51,7 @@ const STATS = [
   {
     id: 'netNationalWater',
     label: 'Net National Water',
-    value: 239.2,
+    value: 234,
     unit: 'MAF',
     change: +5.0,
     icon: 'fa-solid fa-faucet-drip',
@@ -161,7 +161,9 @@ const StatCard = ({ stat, index }) => {
         <span className="stat-label">{stat.label}</span>
         <div className="stat-value-row">
           <span className="stat-value" style={{ color: stat.color }}>
-            <AnimatedNumber value={stat.value} />
+            {typeof stat.value === 'string'
+              ? stat.value
+              : <AnimatedNumber value={stat.value} />}
           </span>
           <span className="stat-unit" style={{ color: `${stat.color}bb` }}>{stat.unit}</span>
         </div>

@@ -4,15 +4,15 @@ import { BASIN_COLORS } from '../../config/mapConfig';
 import './LegendCards.css';
 
 const BASIN_ITEMS = [
-  { id: 'indus', label: 'Indus', maf: 93.0, color: BASIN_COLORS['Indus'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Indus']} 0%, ${BASIN_COLORS['Indus']}99 100%)` },
-  { id: 'chenab', label: 'Chenab', maf: 23.0, color: BASIN_COLORS['Chenab'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Chenab']} 0%, ${BASIN_COLORS['Chenab']}99 100%)` },
-  { id: 'jhelum', label: 'Jhelum', maf: 22.3, color: BASIN_COLORS['Jhelum'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Jhelum']} 0%, ${BASIN_COLORS['Jhelum']}99 100%)` },
-  { id: 'sutlej', label: 'Sutlej', maf: 1.5, color: BASIN_COLORS['Sutlej'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Sutlej']} 0%, ${BASIN_COLORS['Sutlej']}99 100%)` },
-  { id: 'ravi', label: 'Ravi', maf: 1.4, color: BASIN_COLORS['Ravi'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Ravi']} 0%, ${BASIN_COLORS['Ravi']}99 100%)` },
-  { id: 'cumulative', label: 'Cumulative', maf: 141.2, color: '#00e5ff', icon: 'fa-solid fa-layer-group', gradient: 'linear-gradient(135deg, #00e5ff 0%, #0088aa 100%)' },
+  { id: 'indus', label: 'Indus', maf: 95.0, color: BASIN_COLORS['Indus'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Indus']} 0%, ${BASIN_COLORS['Indus']}99 100%)` },
+  { id: 'chenab', label: 'Chenab', maf: 21.0, color: BASIN_COLORS['Chenab'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Chenab']} 0%, ${BASIN_COLORS['Chenab']}99 100%)` },
+  { id: 'jhelum', label: 'Jhelum', maf: 24.0, color: BASIN_COLORS['Jhelum'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Jhelum']} 0%, ${BASIN_COLORS['Jhelum']}99 100%)` },
+  { id: 'sutlej', label: 'Sutlej', maf: 0.98, decimals: 2, color: BASIN_COLORS['Sutlej'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Sutlej']} 0%, ${BASIN_COLORS['Sutlej']}99 100%)` },
+  { id: 'ravi', label: 'Ravi', maf: 0.9, color: BASIN_COLORS['Ravi'], icon: 'fa-solid fa-water', gradient: `linear-gradient(135deg, ${BASIN_COLORS['Ravi']} 0%, ${BASIN_COLORS['Ravi']}99 100%)` },
+  { id: 'cumulative', label: 'Cumulative', maf: 141.88, decimals: 2, color: '#00e5ff', icon: 'fa-solid fa-layer-group', gradient: 'linear-gradient(135deg, #00e5ff 0%, #0088aa 100%)' },
 ];
 
-const AnimatedNumber = ({ value, duration = 1800 }) => {
+const AnimatedNumber = ({ value, duration = 1800, decimals = 1 }) => {
   const [display, setDisplay] = useState(0);
   const prev = useRef(0);
 
@@ -32,7 +32,7 @@ const AnimatedNumber = ({ value, duration = 1800 }) => {
     return () => cancelAnimationFrame(raf);
   }, [value, duration]);
 
-  return <span>{display.toFixed(1)}</span>;
+  return <span>{display.toFixed(decimals)}</span>;
 };
 
 const LegendBubble = ({ item, index }) => {
@@ -62,7 +62,7 @@ const LegendBubble = ({ item, index }) => {
         <span className="lb-label">{item.label}</span>
         <div className="lb-value-row">
           <span className="lb-value" style={{ color: item.color }}>
-            <AnimatedNumber value={item.maf} />
+            <AnimatedNumber value={item.maf} decimals={item.decimals ?? 1} />
           </span>
           <span className="lb-unit" style={{ color: `${item.color}bb` }}>MAF</span>
         </div>

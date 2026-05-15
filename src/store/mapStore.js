@@ -18,7 +18,7 @@ export const useMapStore = create((set, get) => ({
   setMapRef: (ref) => set({ mapRef: ref }),
 
   // Map style
-  mapStyle: 'dark',
+  mapStyle: 'streets',
   setMapStyle: (style) => set({ mapStyle: style }),
 
   // Layer visibility
@@ -117,7 +117,7 @@ export const useMapStore = create((set, get) => ({
   viewport: {
     longitude: 69.3451,
     latitude: 30.3753,
-    zoom: 5,
+    zoom: 4.5,
   },
   setViewport: (viewport) => set({ viewport }),
 }));

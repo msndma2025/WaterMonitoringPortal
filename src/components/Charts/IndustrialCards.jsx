@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './LegendCards.css';
 
 const INDUSTRIAL_ITEMS = [
-  { id: 'demand', label: 'Industrial Demand', maf: 8.3, color: '#f97316', icon: 'fa-solid fa-industry', gradient: 'linear-gradient(135deg, #f97316 0%, #ea580c99 100%)' },
-  { id: 'effluent', label: 'Effluent', maf: 7.4, color: '#a78bfa', icon: 'fa-solid fa-filter', gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf699 100%)' },
+  { id: 'demand', label: 'Industrial Demand', maf: 8.9, color: '#f97316', icon: 'fa-solid fa-industry', gradient: 'linear-gradient(135deg, #f97316 0%, #ea580c99 100%)' },
+  { id: 'effluent', label: 'Effluent', maf: 8.0, color: '#a78bfa', icon: 'fa-solid fa-filter', gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf699 100%)' },
 ];
 
 const AnimatedNumber = ({ value, duration = 1800 }) => {

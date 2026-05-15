@@ -1,8 +1,8 @@
 // Map Configuration
 export const MAP_CONFIG = {
-  accessToken: 'pk.eyJ1IjoiemVlc2hhbjEwIiwiYSI6ImNtMXN0YXVhbTBhYnIybHNhOHRheHRwOWoifQ.vgmSlaE3lAnZPy59Ni7SkQ',
-  defaultCenter: [69.3451, 30.3753], // Pakistan center
-  defaultZoom: 3.2,
+  accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
+  defaultCenter: [68.71, 30.0], // Pakistan center
+  defaultZoom: 4.5,
   minZoom: 3,
   maxZoom: 18,
   styles: {
@@ -13,7 +13,7 @@ export const MAP_CONFIG = {
     outdoors: 'mapbox://styles/mapbox/outdoors-v12',
     navigation: 'mapbox://styles/mapbox/navigation-night-v1',
   },
-  defaultStyle: 'dark',
+  defaultStyle: 'streets',
 };
 
 // GeoServer Configuration

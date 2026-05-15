@@ -272,6 +272,9 @@ const TimeSeriesChart = ({
   const renderTooltip = (props) => <CustomTooltip {...props} seriesMeta={seriesMeta} />;
   const totalPoints = chartData.length;
 
+  const MONTH_ABBR = { January: 'Jan', February: 'Feb', March: 'Mar', April: 'Apr', May: 'May', June: 'Jun', July: 'Jul', August: 'Aug', September: 'Sep', October: 'Oct', November: 'Nov', December: 'Dec' };
+  const isComparison = activeTab === 'comparison';
+
   /* ═══ Shared chart renderer (used inline + in fullscreen portal) ═══ */
   const renderChartBody = (maximized) => (
     <ResponsiveContainer width="100%" height="100%">
@@ -305,11 +308,12 @@ const TimeSeriesChart = ({
           tick={{ fill: 'rgba(255,255,255,0.55)', fontSize: maximized ? 15 : 14, fontWeight: 600 }}
           axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
           tickLine={false}
-          interval={maximized ? 0 : 'preserveStartEnd'}
-          minTickGap={maximized ? 40 : 55}
+          interval={isComparison ? 0 : (maximized ? 0 : 'preserveStartEnd')}
+          minTickGap={isComparison ? 0 : (maximized ? 40 : 55)}
           angle={maximized ? -45 : 0}
           textAnchor={maximized ? 'end' : 'middle'}
           height={maximized ? 55 : undefined}
+          tickFormatter={isComparison ? (v) => MONTH_ABBR[v] || v : undefined}
         />
 
         <YAxis
@@ -371,11 +375,11 @@ const TimeSeriesChart = ({
             name={s.name}
             stroke={s.color}
             strokeWidth={maximized ? 2.5 : 2.2}
-            dot={maximized
+            dot={maximized || activeTab === 'comparison'
               ? (props) => <DataPointDot {...props} seriesStats={seriesStats} totalPoints={totalPoints} />
               : false
             }
-            activeDot={maximized ? false : <GlowDot />}
+            activeDot={maximized || activeTab === 'comparison' ? false : <GlowDot />}
             animationDuration={1400}
             animationBegin={i * 120}
             animationEasing="ease-out"
@@ -404,6 +408,7 @@ const TimeSeriesChart = ({
                 {[
                   { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
                   { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
+                  { key: 'comparison', icon: 'fa-chart-bar', label: 'Comparison Graph' },
                 ].map((t) => (
                   <button
                     key={t.key}
@@ -498,6 +503,7 @@ const TimeSeriesChart = ({
           {[
             { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
             { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
+            { key: 'comparison', icon: 'fa-chart-bar', label: 'Comparison Graph' },
           ].map((t) => (
             <button
               key={t.key}
