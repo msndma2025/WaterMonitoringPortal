@@ -7,7 +7,7 @@ import About from './About';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
 
   const sidebarVariants = {
@@ -59,8 +59,41 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </div>
 
+        {/* Catchment Inflows Button */}
+        <div className="sidebar-inflows-btn-wrap">
+          <motion.button
+            className="catchment-inflows-btn"
+            onClick={() => { setShowInflowsModal(true); onClose(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <i className="fas fa-table"></i>
+            <span>Catchment Wise Inflows 2026</span>
+          </motion.button>
+          <motion.button
+            className="catchment-inflows-btn losses-btn"
+            onClick={() => { setShowLossesModal(true); onClose(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ marginTop: '0.4rem' }}
+          >
+            <i className="fas fa-tint-slash"></i>
+            <span>Losses (MAF) 2026</span>
+          </motion.button>
+          <motion.button
+            className="catchment-inflows-btn inflows-comp-btn"
+            onClick={() => { setShowInflowsCompModal(true); onClose(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ marginTop: '0.4rem' }}
+          >
+            <i className="fas fa-water"></i>
+            <span>Water Inflows 2025–2026</span>
+          </motion.button>
+        </div>
+
         {/* About Button at Bottom */}
-        <motion.div 
+        <motion.div
           className="sidebar-footer"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -109,6 +109,18 @@ export const useMapStore = create((set, get) => ({
       },
     })),
 
+  // Catchment Inflows modal
+  showInflowsModal: false,
+  setShowInflowsModal: (v) => set({ showInflowsModal: v }),
+
+  // Losses modal
+  showLossesModal: false,
+  setShowLossesModal: (v) => set({ showLossesModal: v }),
+
+  // Water Inflows 2025-2026 modal
+  showInflowsCompModal: false,
+  setShowInflowsCompModal: (v) => set({ showInflowsCompModal: v }),
+
   // Loading state
   isLoading: true,
   setIsLoading: (loading) => set({ isLoading: loading }),

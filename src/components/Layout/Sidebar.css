@@ -361,6 +361,65 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* ---- Catchment Inflows Button ---- */
+.sidebar-inflows-btn-wrap {
+  padding: 0.5rem 0.85rem 0.25rem;
+  flex-shrink: 0;
+}
+
+.catchment-inflows-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(204, 0, 0, 0.15);
+  border: 1px solid rgba(204, 0, 0, 0.5);
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.catchment-inflows-btn i {
+  font-size: 0.82rem;
+  color: #ff6b6b;
+  transition: color 0.2s ease;
+}
+
+.catchment-inflows-btn:hover {
+  background: rgba(204, 0, 0, 0.28);
+  border-color: rgba(204, 0, 0, 0.75);
+  color: #ff9999;
+}
+
+.losses-btn {
+  background: rgba(14, 50, 90, 0.25);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+}
+.losses-btn i { color: #7dd3fc; }
+.losses-btn:hover {
+  background: rgba(14, 50, 90, 0.45);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #bae6fd;
+}
+
+.inflows-comp-btn {
+  background: rgba(5, 80, 60, 0.25);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #6ee7b7;
+}
+.inflows-comp-btn i { color: #6ee7b7; }
+.inflows-comp-btn:hover {
+  background: rgba(5, 80, 60, 0.45);
+  border-color: rgba(52, 211, 153, 0.6);
+  color: #a7f3d0;
+}
+
 /* ---- Footer ---- */
 .sidebar-footer {
   padding: 0.75rem 0.85rem;

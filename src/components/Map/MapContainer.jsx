@@ -27,6 +27,9 @@ import {
 import MapControls from './MapControls';
 import StorageComparison from './StorageComparison';
 import TimeSeriesController from './TimeSeriesController';
+import CatchmentInflowsModal from './CatchmentInflowsModal';
+import LossesModal from './LossesModal';
+import InflowsCompModal from './InflowsCompModal';
 import './MapContainer.css';
 
 // Track loaded layers globally to avoid refetching
@@ -1217,6 +1220,10 @@ const MapContainer = () => {
         type="precipitation" 
         visible={layerVisibility.precipitation} 
       />
+
+      <CatchmentInflowsModal />
+      <LossesModal />
+      <InflowsCompModal />
 
       {activeLayerOrder.length >= 2 && (
         <div className="layer-order-panel">

@@ -48,5 +48,37 @@
     "originalName": "5.png",
     "createdAt": "2026-03-11T07:16:37.961Z",
     "order": 4
+  },
+  {
+    "id": "1779171149817",
+    "title": "Catchment Wise Inflows 2026",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1779171262667-646143163.png",
+    "originalName": "slide1.png",
+    "createdAt": "2026-05-19T06:12:29.817Z",
+    "order": 5,
+    "updatedAt": "2026-05-19T06:14:22.678Z"
+  },
+  {
+    "id": "1779171158979",
+    "title": "Losses (MAF)",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1779171281945-636810537.png",
+    "originalName": "slide2.png",
+    "createdAt": "2026-05-19T06:12:38.979Z",
+    "order": 6,
+    "updatedAt": "2026-05-19T06:14:41.957Z"
+  },
+  {
+    "id": "1779171221616",
+    "title": "Comparison 2025-2026",
+    "description": "",
+    "type": "image",
+    "url": "/uploads/1779171221609-944788830.png",
+    "originalName": "lide3.png",
+    "createdAt": "2026-05-19T06:13:41.616Z",
+    "order": 7
   }
 ]
