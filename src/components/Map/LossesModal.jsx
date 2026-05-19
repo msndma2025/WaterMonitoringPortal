@@ -93,7 +93,7 @@ const LossesModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.getElementById('map-modal-portal') || document.body
       )}
 
       {createPortal(
@@ -115,7 +115,7 @@ const LossesModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.getElementById('map-modal-portal') || document.body
       )}
     </>
   );

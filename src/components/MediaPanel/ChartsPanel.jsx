@@ -185,7 +185,6 @@ const ChartsPanel = () => {
   return (
     <div className="charts-panel-wrap">
       <TimeSeriesChart
-        key={activeChartTab}
         data={current.data}
         title={current.title}
         subtitle={current.subtitle}

@@ -96,7 +96,7 @@ const CatchmentInflowsModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.getElementById('map-modal-portal') || document.body
       )}
 
       {createPortal(
@@ -118,7 +118,7 @@ const CatchmentInflowsModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.getElementById('map-modal-portal') || document.body
       )}
     </>
   );

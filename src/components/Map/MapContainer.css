@@ -11,6 +11,15 @@
   height: 100%;
 }
 
+#map-modal-portal {
+  position: relative;
+  z-index: 9999;
+  pointer-events: none;
+}
+#map-modal-portal > * {
+  pointer-events: auto;
+}
+
 /* Override Mapbox controls styling */
 .mapboxgl-ctrl-group {
   background: var(--surface-elevated) !important;

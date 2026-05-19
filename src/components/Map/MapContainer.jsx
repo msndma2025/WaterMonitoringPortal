@@ -40,6 +40,7 @@ mapboxgl.accessToken = MAP_CONFIG.accessToken;
 
 const MapContainer = () => {
   const mapContainerRef = useRef(null);
+  const mapWrapperRef = useRef(null);
   const mapRef = useRef(null);
   const mapInitializedRef = useRef(false);
   const { setMapRef, mapStyle, layerVisibility, activeLayerOrder, reorderLayers, setIsLoading } = useMapStore();
@@ -1076,7 +1077,7 @@ const MapContainer = () => {
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 100 }), 'bottom-left');
-    map.addControl(new mapboxgl.FullscreenControl(), 'top-left');
+    map.addControl(new mapboxgl.FullscreenControl({ container: mapWrapperRef.current }), 'top-left');
 
     map.on('load', async () => {
       console.log('Map loaded successfully');
@@ -1204,7 +1205,7 @@ const MapContainer = () => {
   };
 
   return (
-    <div className="map-container">
+    <div ref={mapWrapperRef} className="map-container">
       <div ref={mapContainerRef} className="map-canvas" />
       <MapControls />
       <StorageComparison />
@@ -1224,6 +1225,7 @@ const MapContainer = () => {
       <CatchmentInflowsModal />
       <LossesModal />
       <InflowsCompModal />
+      <div id="map-modal-portal" />
 
       {activeLayerOrder.length >= 2 && (
         <div className="layer-order-panel">

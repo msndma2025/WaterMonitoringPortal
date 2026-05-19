@@ -102,7 +102,13 @@ echo.
 echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo.
 
-:: Start the development server
+:: Start backend API server in a separate window
+start "Water Portal - API Server" cmd /k "node server/index.js"
+
+:: Wait a moment for the backend to initialize
+timeout /t 2 /nobreak >nul
+
+:: Start the frontend development server
 npm run dev
 
 endlocal

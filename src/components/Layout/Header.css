@@ -2,7 +2,7 @@
 .app-header {
   flex-shrink: 0;
   height: var(--header-height);
-  background: linear-gradient(90deg, var(--maroon-800) 0%, var(--maroon-600) 50%, var(--maroon-800) 100%);
+  background: linear-gradient(90deg, #7a1510 0%, #9e1d13 50%, #7a1510 100%);
   padding: 0 1rem;
   position: relative;
   z-index: 200;
@@ -91,7 +91,7 @@
 }
 
 .header-title {
-  font-size: 1.25rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.05em;
