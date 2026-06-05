@@ -11,15 +11,6 @@
   height: 100%;
 }
 
-#map-modal-portal {
-  position: relative;
-  z-index: 9999;
-  pointer-events: none;
-}
-#map-modal-portal > * {
-  pointer-events: auto;
-}
-
 /* Override Mapbox controls styling */
 .mapboxgl-ctrl-group {
   background: var(--surface-elevated) !important;
@@ -76,13 +67,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* Style switcher */
-.style-switcher {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 5;
-}
+/* Style switcher (positioning handled by .map-controls flex layout) */
 
 .style-switcher-btn {
   display: flex;
@@ -130,22 +115,22 @@
   padding: 0.625rem 1rem;
   text-align: left;
   background: transparent;
-  color: #e2e8f0;
+  color: #ffffff;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .style-option:hover {
-  background: rgba(0, 229, 255, 0.15);
-  color: var(--maroon-400);
+  background: rgba(56, 189, 248, 0.18);
+  color: #ffffff;
 }
 
 .style-option.active {
-  background: rgba(0, 229, 255, 0.2);
-  color: var(--maroon-400);
+  background: rgba(56, 189, 248, 0.25);
+  color: #ffffff;
 }
 
 /* Dark tooltip for catchment basins */

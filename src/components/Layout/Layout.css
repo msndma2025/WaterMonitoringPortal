@@ -51,6 +51,29 @@
   min-height: 0;
 }
 
+.map-section.map-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  border-radius: 0;
+  border: none;
+}
+
+/* Push Mapbox built-in controls below the navbar in fullscreen */
+.map-section.map-fullscreen .mapboxgl-ctrl-top-left {
+  top: calc(var(--header-height) + 8px) !important;
+}
+.map-section.map-fullscreen .mapboxgl-ctrl-top-right {
+  top: calc(var(--header-height) + 8px) !important;
+}
+/* Push custom controls below navbar too */
+.map-section.map-fullscreen .map-controls {
+  top: calc(var(--header-height) + 8px);
+}
+.map-section.map-fullscreen .map-fullscreen-btn {
+  top: calc(var(--header-height) + 8px);
+}
+
 .charts-section {
   min-height: 0;
   overflow: hidden;

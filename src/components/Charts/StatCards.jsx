@@ -6,7 +6,7 @@ import './StatCards.css';
 const STATS = [
   {
     id: 'totalStorage',
-    label: 'River Inflows',
+    label: ['River Inflows'],
     value: '140–142',
     unit: 'MAF',
     change: +2.3,
@@ -14,10 +14,11 @@ const STATS = [
     color: '#38bdf8',
     gradient: 'linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)',
     bgGlow: 'rgba(56, 189, 248, 0.10)',
+    bgGif: '/animated_gifs/river.gif',
   },
   {
     id: 'precipitation',
-    label: 'Rain in Lower Basin',
+    label: ['Rain in', 'Lower Basin'],
     value: 30,
     unit: 'MAF',
     change: +12,
@@ -25,10 +26,11 @@ const STATS = [
     color: '#34d399',
     gradient: 'linear-gradient(135deg, #34d399 0%, #059669 100%)',
     bgGlow: 'rgba(52, 211, 153, 0.10)',
+    bgGif: '/animated_gifs/rain.gif',
   },
   {
     id: 'evaporation',
-    label: 'Ground Water Extraction',
+    label: ['Ground Water', 'Extraction'],
     value: 52,
     unit: 'MAF',
     change: +0.5,
@@ -36,10 +38,11 @@ const STATS = [
     color: '#f472b6',
     gradient: 'linear-gradient(135deg, #f472b6 0%, #db2777 100%)',
     bgGlow: 'rgba(244, 114, 182, 0.10)',
+    bgGif: '/animated_gifs/groundwater.gif',
   },
   {
     id: 'rainField',
-    label: 'Rains in Field',
+    label: ['Rains in', 'Field'],
     value: 10,
     unit: 'mm',
     change: +1.2,
@@ -47,10 +50,11 @@ const STATS = [
     color: '#fbbf24',
     gradient: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
     bgGlow: 'rgba(251, 191, 36, 0.10)',
+    bgGif: '/animated_gifs/fields.gif',
   },
   {
     id: 'netNationalWater',
-    label: 'Net National Water',
+    label: ['Net National', 'Water'],
     value: 234,
     unit: 'MAF',
     change: +5.0,
@@ -58,6 +62,7 @@ const STATS = [
     color: '#a78bfa',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
     bgGlow: 'rgba(167, 139, 250, 0.10)',
+    bgGif: '/animated_gifs/netwater.gif',
   },
 ];
 
@@ -136,6 +141,14 @@ const StatCard = ({ stat, index }) => {
         transition={{ duration: 0.7, delay: index * 0.1 + 0.2 }}
       />
 
+      {/* Animated GIF background */}
+      {stat.bgGif && (
+        <div
+          className="stat-card-gif"
+          style={{ backgroundImage: `url(${stat.bgGif})` }}
+        />
+      )}
+
       {/* Background glow orb */}
       <motion.div
         className="stat-card-bg-glow"
@@ -158,7 +171,11 @@ const StatCard = ({ stat, index }) => {
 
       {/* Content */}
       <div className="stat-content">
-        <span className="stat-label">{stat.label}</span>
+        <span className="stat-label">
+          {(Array.isArray(stat.label) ? stat.label : [stat.label]).map((line, i) => (
+            <span key={i} className="stat-label-line">{line}</span>
+          ))}
+        </span>
         <div className="stat-value-row">
           <span className="stat-value" style={{ color: stat.color }}>
             {typeof stat.value === 'string'

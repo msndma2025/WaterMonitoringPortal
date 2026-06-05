@@ -6,7 +6,7 @@ import './MapControls.css';
 
 const MapControls = () => {
   const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false);
-  const { mapRef, mapStyle, setMapStyle } = useMapStore();
+  const { mapRef, mapStyle, setMapStyle, mapFullscreen, setMapFullscreen } = useMapStore();
 
   const handleStyleChange = (styleKey) => {
     if (mapRef && MAP_CONFIG.styles[styleKey]) {
@@ -26,7 +26,8 @@ const MapControls = () => {
   };
 
   return (
-    <div className="map-controls">
+    <>
+      <div className="map-controls">
       {/* Style Switcher */}
       <div className="control-group style-switcher">
         <button 
@@ -65,7 +66,17 @@ const MapControls = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+      </div>
+
+      {/* Fullscreen Toggle — positioned separately to avoid any overlap */}
+      <button
+        className="map-fullscreen-btn"
+        onClick={() => setMapFullscreen(!mapFullscreen)}
+        title={mapFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+      >
+        <i className={`fas fa-${mapFullscreen ? 'compress' : 'expand'}`}></i>
+      </button>
+    </>
   );
 };
 

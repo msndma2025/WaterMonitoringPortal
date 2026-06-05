@@ -121,6 +121,14 @@ export const useMapStore = create((set, get) => ({
   showInflowsCompModal: false,
   setShowInflowsCompModal: (v) => set({ showInflowsCompModal: v }),
 
+  // Projections 2027-2030 modal
+  showProjectionsModal: false,
+  setShowProjectionsModal: (v) => set({ showProjectionsModal: v }),
+
+  // Map fullscreen (CSS-based)
+  mapFullscreen: false,
+  setMapFullscreen: (v) => set({ mapFullscreen: v }),
+
   // Loading state
   isLoading: true,
   setIsLoading: (loading) => set({ isLoading: loading }),

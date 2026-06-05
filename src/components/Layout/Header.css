@@ -2,7 +2,7 @@
 .app-header {
   flex-shrink: 0;
   height: var(--header-height);
-  background: linear-gradient(90deg, #7a1510 0%, #9e1d13 50%, #7a1510 100%);
+  background: #952211;
   padding: 0 1rem;
   position: relative;
   z-index: 200;
@@ -91,8 +91,8 @@
 }
 
 .header-title {
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 900;
   color: #ffffff;
   letter-spacing: 0.05em;
   text-transform: uppercase;

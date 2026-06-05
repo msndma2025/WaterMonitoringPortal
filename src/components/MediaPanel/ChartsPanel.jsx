@@ -10,7 +10,7 @@ const num = (v) => {
 };
 
 const ChartsPanel = () => {
-  const [activeChartTab, setActiveChartTab] = useState('rcp');
+  const [activeChartTab, setActiveChartTab] = useState('comparison');
   const [rcpData, setRcpData] = useState(null);
   const [projectionData, setProjectionData] = useState(null);
   const [comparisonData, setComparisonData] = useState(null);
@@ -138,13 +138,13 @@ const ChartsPanel = () => {
         {
           id: 'inflow2025',
           name: '2025 Inflow (MAF)',
-          color: '#22d3ee',
+          color: '#3b82f6',
           data: rows.map((r) => num(r['2025 Inflow (MAF)'])),
         },
         {
           id: 'inflow2026',
           name: '2026 Inflow (MAF)',
-          color: '#f472b6',
+          color: '#22c55e',
           data: rows.map((r) => num(r['2026 Inflow (MAF)'])),
         },
       ],

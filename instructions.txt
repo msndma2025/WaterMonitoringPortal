@@ -1,0 +1,3 @@
+cd /mnt/c/Users/1069muddasir/Desktop/WaterMonitoringPortal/
+
+./start.sh

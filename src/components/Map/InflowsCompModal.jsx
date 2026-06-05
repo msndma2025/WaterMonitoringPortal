@@ -98,7 +98,7 @@ const InflowsCompModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.getElementById('map-modal-portal') || document.body
+        document.body
       )}
 
       {createPortal(
@@ -120,7 +120,7 @@ const InflowsCompModal = () => {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.getElementById('map-modal-portal') || document.body
+        document.body
       )}
     </>
   );

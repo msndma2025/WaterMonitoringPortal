@@ -7,10 +7,13 @@ import ChartsPanel from '../MediaPanel/ChartsPanel';
 import RightPanel from '../MediaPanel/RightPanel';
 import NewsTicker from './NewsTicker';
 import BackgroundVideo from './BackgroundVideo';
+import MapFullscreenPanels from '../Map/MapFullscreenPanels';
+import { useMapStore } from '../../store/mapStore';
 import './Layout.css';
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { mapFullscreen } = useMapStore();
 
   return (
     <div className="app-layout">
@@ -22,7 +25,7 @@ const Layout = () => {
         <main className="main-content">
           <div className="content-grid">
             <div className="main-left">
-              <div className="map-section">
+              <div className={`map-section${mapFullscreen ? ' map-fullscreen' : ''}`}>
                 <MapContainer />
               </div>
               
@@ -48,6 +51,7 @@ const Layout = () => {
       </div>
 
       <NewsTicker />
+      <MapFullscreenPanels />
     </div>
   );
 };

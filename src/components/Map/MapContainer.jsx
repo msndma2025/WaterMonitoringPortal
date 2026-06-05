@@ -30,6 +30,7 @@ import TimeSeriesController from './TimeSeriesController';
 import CatchmentInflowsModal from './CatchmentInflowsModal';
 import LossesModal from './LossesModal';
 import InflowsCompModal from './InflowsCompModal';
+import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
 // Track loaded layers globally to avoid refetching
@@ -40,10 +41,9 @@ mapboxgl.accessToken = MAP_CONFIG.accessToken;
 
 const MapContainer = () => {
   const mapContainerRef = useRef(null);
-  const mapWrapperRef = useRef(null);
   const mapRef = useRef(null);
   const mapInitializedRef = useRef(false);
-  const { setMapRef, mapStyle, layerVisibility, activeLayerOrder, reorderLayers, setIsLoading } = useMapStore();
+  const { setMapRef, mapStyle, layerVisibility, activeLayerOrder, reorderLayers, setIsLoading, mapFullscreen, setMapFullscreen } = useMapStore();
   
   // Track current layers to restore after style change
   const activeLayersRef = useRef(new Set());
@@ -1077,7 +1077,6 @@ const MapContainer = () => {
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 100 }), 'bottom-left');
-    map.addControl(new mapboxgl.FullscreenControl({ container: mapWrapperRef.current }), 'top-left');
 
     map.on('load', async () => {
       console.log('Map loaded successfully');
@@ -1187,6 +1186,23 @@ const MapContainer = () => {
     });
   }, [activeLayerOrder]);
 
+  // Resize map when CSS fullscreen changes so Mapbox redraws at new size
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.resize();
+    }
+  }, [mapFullscreen]);
+
+  // Escape key exits CSS fullscreen
+  useEffect(() => {
+    if (!mapFullscreen) return;
+    const handler = (e) => {
+      if (e.key === 'Escape') setMapFullscreen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [mapFullscreen, setMapFullscreen]);
+
   const moveLayer = (idx, direction) => {
     const newOrder = [...activeLayerOrder];
     const targetIdx = idx + direction;
@@ -1205,7 +1221,7 @@ const MapContainer = () => {
   };
 
   return (
-    <div ref={mapWrapperRef} className="map-container">
+    <div className="map-container">
       <div ref={mapContainerRef} className="map-canvas" />
       <MapControls />
       <StorageComparison />
@@ -1225,6 +1241,7 @@ const MapContainer = () => {
       <CatchmentInflowsModal />
       <LossesModal />
       <InflowsCompModal />
+      <ProjectionsModal />
       <div id="map-modal-portal" />
 
       {activeLayerOrder.length >= 2 && (

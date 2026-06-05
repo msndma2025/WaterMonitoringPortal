@@ -105,7 +105,7 @@ const GlowDot = ({ cx, cy, stroke }) => {
 /* ═══════════════════════════════════════════════════════
    DataPointDot — shows real value labels in maximized mode
    ═══════════════════════════════════════════════════════ */
-const DataPointDot = ({ cx, cy, payload, dataKey, stroke, seriesStats, totalPoints }) => {
+const DataPointDot = ({ cx, cy, payload, dataKey, stroke, seriesStats, totalPoints, seriesIdx, allSeriesIds }) => {
   if (cx == null || cy == null || !payload) return null;
   /* Extract base series id */
   const baseId = dataKey;
@@ -117,12 +117,28 @@ const DataPointDot = ({ cx, cy, payload, dataKey, stroke, seriesStats, totalPoin
   const step = totalPoints > 40 ? 5 : totalPoints > 20 ? 3 : 2;
   if (yearIdx != null && yearIdx % step !== 0) return null;
 
+  /* Position label based on rank at this point — highest value above, lowest below.
+     This guarantees labels never collide regardless of which line is on top. */
+  let placeAbove = seriesIdx % 2 === 0;
+  if (Array.isArray(allSeriesIds) && allSeriesIds.length > 1) {
+    const myVal = realVal;
+    const otherVals = allSeriesIds
+      .filter((id) => id !== baseId)
+      .map((id) => payload[id])
+      .filter((v) => v != null && !isNaN(v));
+    if (otherVals.length > 0) {
+      const maxOther = Math.max(...otherVals);
+      placeAbove = myVal >= maxOther;
+    }
+  }
+  const labelY = placeAbove ? cy - 14 : cy + 22;
+
   return (
     <g>
       <circle cx={cx} cy={cy} r={5} fill={stroke} />
       <text
         x={cx}
-        y={cy - 16}
+        y={labelY}
         textAnchor="middle"
         fill={stroke}
         fontSize={17}
@@ -278,7 +294,7 @@ const TimeSeriesChart = ({
   /* ═══ Shared chart renderer (used inline + in fullscreen portal) ═══ */
   const renderChartBody = (maximized) => (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={chartData} margin={maximized ? { top: 24, right: 30, bottom: 10, left: 0 } : { top: 8, right: 16, bottom: 4, left: -10 }}>
+      <ComposedChart data={chartData} margin={maximized ? { top: 40, right: 30, bottom: 10, left: 0 } : { top: 30, right: 16, bottom: 4, left: -10 }}>
         <defs>
           {data.series.map((s) => (
             <linearGradient key={s.id} id={`grad-${s.id}${maximized ? '-max' : ''}`} x1="0" y1="0" x2="0" y2="1">
@@ -317,7 +333,7 @@ const TimeSeriesChart = ({
         />
 
         <YAxis
-          domain={['auto', 'auto']}
+          domain={['auto', (dataMax) => Math.ceil(dataMax * 1.12)]}
           tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: maximized ? 14 : 13, fontWeight: 500 }}
           axisLine={false}
           tickLine={false}
@@ -374,9 +390,10 @@ const TimeSeriesChart = ({
             dataKey={s.id}
             name={s.name}
             stroke={s.color}
-            strokeWidth={maximized ? 2.5 : 2.2}
+            strokeWidth={maximized ? 4.5 : 3.8}
+            style={{ filter: `drop-shadow(0 0 4px ${s.color}80)` }}
             dot={maximized || activeTab === 'comparison'
-              ? (props) => <DataPointDot {...props} seriesStats={seriesStats} totalPoints={totalPoints} />
+              ? (props) => <DataPointDot {...props} seriesStats={seriesStats} totalPoints={totalPoints} seriesIdx={i} allSeriesIds={visibleSeries.map((vs) => vs.id)} />
               : false
             }
             activeDot={maximized || activeTab === 'comparison' ? false : <GlowDot />}
@@ -406,9 +423,9 @@ const TimeSeriesChart = ({
             <div className="ts-fullscreen-header">
               <div className="ts-tabs">
                 {[
-                  { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
-                  { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
                   { key: 'comparison', icon: 'fa-chart-bar', label: 'Comparison Graph' },
+                  { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
+                  { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
                 ].map((t) => (
                   <button
                     key={t.key}
@@ -501,9 +518,9 @@ const TimeSeriesChart = ({
       <div className="ts-header">
         <div className="ts-tabs">
           {[
-            { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
-            { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
             { key: 'comparison', icon: 'fa-chart-bar', label: 'Comparison Graph' },
+            { key: 'projection', icon: 'fa-water', label: 'Water Projection' },
+            { key: 'rcp', icon: 'fa-chart-line', label: 'RCP Scenarios' },
           ].map((t) => (
             <button
               key={t.key}

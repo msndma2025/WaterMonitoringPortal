@@ -30,7 +30,7 @@
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 500;
   overflow: hidden;
 }
 
@@ -418,6 +418,18 @@
   background: rgba(5, 80, 60, 0.45);
   border-color: rgba(52, 211, 153, 0.6);
   color: #a7f3d0;
+}
+
+.projections-btn {
+  background: rgba(120, 53, 15, 0.28);
+  border-color: rgba(251, 146, 60, 0.4);
+  color: #fdba74;
+}
+.projections-btn i { color: #fdba74; }
+.projections-btn:hover {
+  background: rgba(120, 53, 15, 0.45);
+  border-color: rgba(251, 146, 60, 0.65);
+  color: #fed7aa;
 }
 
 /* ---- Footer ---- */
