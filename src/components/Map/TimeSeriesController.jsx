@@ -183,17 +183,20 @@ const TimeSeriesController = ({ type, visible, onClose }) => {
   const handleOpacityChange = (e) => {
     const newOpacity = parseInt(e.target.value);
     setOpacity(newOpacity);
-    
+
     const map = mapRef;
     if (!map) return;
 
     items.forEach(item => {
-      const layerId = isTimePeriod 
+      const layerId = isTimePeriod
         ? `${config.layerPrefix}${item.id}`
         : `${config.layerPrefix}${item}`;
-      
+
       if (map.getLayer(layerId)) {
-        map.setPaintProperty(layerId, 'raster-opacity', newOpacity / 100);
+        const layer = map.getLayer(layerId);
+        // Use correct opacity property based on layer type
+        const opacityProp = layer.type === 'raster' ? 'raster-opacity' : 'fill-opacity';
+        map.setPaintProperty(layerId, opacityProp, newOpacity / 100);
       }
     });
   };
