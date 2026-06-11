@@ -110,8 +110,7 @@ const TimeSeriesController = ({ type, visible, onClose }) => {
   // Update layer visibility - wrapped in useCallback
   const updateLayer = useCallback((index) => {
     const map = mapRef;
-    if (!map) {
-      console.log('No map reference');
+    if (!map || !map.isStyleLoaded?.()) {
       return;
     }
 
