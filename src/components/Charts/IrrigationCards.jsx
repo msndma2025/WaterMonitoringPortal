@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './LegendCards.css';
 
 const IRRIGATION_ITEMS = [
-  { id: 'canal_cmd', label: 'Canal Command', maf: 105, color: '#00CC00', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #00CC00 0%, #00990099 100%)' },
+  { id: 'canal_cmd', label: 'Canal Command', maf: 103, color: '#00CC00', icon: 'fa-solid fa-water', gradient: 'linear-gradient(135deg, #00CC00 0%, #00990099 100%)' },
   { id: 'loss_main', label: 'Loss at Main Canal', maf: 25, color: '#FF6347', icon: 'fa-solid fa-arrow-down', gradient: 'linear-gradient(135deg, #FF6347 0%, #CC4F3999 100%)' },
-  { id: 'loss_branch', label: 'Loss at Branch Canal', maf: 20, color: '#4DA6FF', icon: 'fa-solid fa-arrow-down', gradient: 'linear-gradient(135deg, #4DA6FF 0%, #3A80CC99 100%)' },
+  { id: 'loss_branch', label: 'Loss at Branch Canal', maf: 21, color: '#4DA6FF', icon: 'fa-solid fa-arrow-down', gradient: 'linear-gradient(135deg, #4DA6FF 0%, #3A80CC99 100%)' },
   { id: 'loss_dist', label: 'Loss at Distributary', maf: 10, color: '#FFA94D', icon: 'fa-solid fa-arrow-down', gradient: 'linear-gradient(135deg, #FFA94D 0%, #CC873D99 100%)' },
-  { id: 'farm_gate', label: 'Available at Farm Gate', maf: 50, color: '#34d399', icon: 'fa-solid fa-tractor', gradient: 'linear-gradient(135deg, #34d399 0%, #22996D99 100%)' },
+  { id: 'farm_gate', label: 'Available at Farm Gate', maf: 47, color: '#34d399', icon: 'fa-solid fa-tractor', gradient: 'linear-gradient(135deg, #34d399 0%, #22996D99 100%)' },
 ];
 
 const AnimatedNumber = ({ value, duration = 1800 }) => {
