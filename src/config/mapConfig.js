@@ -136,6 +136,7 @@ export const LAYER_GROUPS = {
       { id: 'snowCover', label: 'Snow Cover', defaultVisible: false, hasTimeSeries: true },
       { id: 'evapotranspiration', label: 'Evapotranspiration', defaultVisible: false, hasTimeSeries: true },
       { id: 'precipitation', label: 'Precipitation', defaultVisible: false, hasTimeSeries: true },
+      { id: 'temperature', label: 'Temperature', defaultVisible: false, hasTimeSeries: true },
       { id: 'groundwater', label: 'Ground Water', defaultVisible: false, isLink: true, href: 'https://lookerstudio.google.com/u/0/reporting/77819a68-5bd9-40bd-89b8-34d3ed6d410d/page/p_gglvdfgjsd' },
       { id: 'seaSurface', label: 'Sea Surface Temperature', defaultVisible: false },
       { id: 'floodExtent', label: 'Flood Extend 2025', defaultVisible: false },
@@ -202,6 +203,20 @@ export const TIME_SERIES = {
     { id: '2011-2015', layer: 'rainfall_2011_2015', label: '2011-2015' },
     { id: '2016-2020', layer: 'rainfall_2016_2020', label: '2016-2020' },
     { id: '2021-2025', layer: 'rainfall_2021_2025', label: '2021-2025' },
+  ],
+  temperature: [
+    { id: 'jan', label: 'January' },
+    { id: 'feb', label: 'February' },
+    { id: 'mar', label: 'March' },
+    { id: 'apr', label: 'April' },
+    { id: 'may', label: 'May' },
+    { id: 'jun', label: 'June' },
+    { id: 'jul', label: 'July' },
+    { id: 'aug', label: 'August' },
+    { id: 'sep', label: 'September' },
+    { id: 'oct', label: 'October' },
+    { id: 'nov', label: 'November' },
+    { id: 'dec', label: 'December' },
   ],
 };
 

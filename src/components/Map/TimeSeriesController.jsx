@@ -74,6 +74,22 @@ const TimeSeriesController = ({ type, visible, onClose }) => {
             { color: '#253494', label: 'High' },
           ],
         };
+      case 'temperature':
+        return {
+          title: 'Temperature',
+          months: TIME_SERIES.temperature,
+          layerPrefix: 'temperature-',
+          color: '#FF9800',
+          colorHover: '#F57C00',
+          legend: [
+            { color: '#2166ac', label: 'Cold' },
+            { color: '#4575b4', label: '' },
+            { color: '#abd9e9', label: '' },
+            { color: '#fee090', label: '' },
+            { color: '#fdae61', label: '' },
+            { color: '#d73027', label: 'Hot' },
+          ],
+        };
       default:
         return null;
     }
@@ -82,10 +98,12 @@ const TimeSeriesController = ({ type, visible, onClose }) => {
   const config = getConfig();
   if (!config) return null;
 
-  const isTimePeriod = type === 'precipitation';
-  const items = isTimePeriod ? config.periods : config.years;
+  const isTimePeriod = type === 'precipitation' || type === 'temperature';
+  const items = isTimePeriod
+    ? (config.periods || config.months)
+    : config.years;
   const currentValue = timeSeriesSelections[type];
-  const currentIndex = isTimePeriod 
+  const currentIndex = isTimePeriod
     ? items.findIndex(p => p.id === currentValue)
     : items.indexOf(currentValue);
 

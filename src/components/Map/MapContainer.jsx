@@ -612,6 +612,63 @@ const MapContainer = () => {
     console.log('✓ Snow Cover layers loaded');
   }, []);
 
+  // Setup Temperature layers (Vector data from GeoJSON - shapefiles converted)
+  const setupTemperatureLayers = useCallback(async (map) => {
+    const monthMap = {
+      jan: 'vjan', feb: 'vfeb', mar: 'vmar', apr: 'vapr',
+      may: 'vmay', jun: 'vjun', jul: 'vjul', aug: 'vaug',
+      sep: 'vsep', oct: 'voct', nov: 'vnov', dec: 'vdec'
+    };
+
+    for (const month of TIME_SERIES.temperature) {
+      const sourceId = `temperature-${month.id}`;
+      const layerId = `temperature-${month.id}`;
+      const shapefileName = monthMap[month.id];
+
+      if (!map.getSource(sourceId)) {
+        try {
+          const resp = await fetch(`/temp_2027/${shapefileName}.geojson`);
+          if (!resp.ok) throw new Error(`Failed to fetch ${shapefileName}.geojson`);
+          const geojson = await resp.json();
+
+          map.addSource(sourceId, { type: 'geojson', data: geojson });
+
+          // Create color expression based on DN values
+          const colorExpr = [
+            'interpolate',
+            ['linear'],
+            ['get', 'DN'],
+            -30, '#2166ac', // Cold blue
+            -20, '#4575b4',
+            -10, '#74add1',
+            0, '#abd9e9',
+            10, '#e0f3f8',
+            20, '#ffffbf',
+            30, '#fee090',
+            40, '#fdae61',
+            50, '#f46d43',
+            60, '#d73027', // Hot red
+          ];
+
+          map.addLayer({
+            id: layerId,
+            type: 'fill',
+            source: sourceId,
+            layout: { visibility: 'none' },
+            paint: {
+              'fill-color': colorExpr,
+              'fill-opacity': 0.75,
+            },
+          });
+          console.log(`✓ Temperature layer added: ${month.label}`);
+        } catch (e) {
+          console.warn(`Could not load temperature data for ${month.label}:`, e.message);
+        }
+      }
+    }
+    console.log('✓ Temperature layers loaded');
+  }, []);
+
   // Setup Coastal layers
   const setupCoastalLayers = useCallback((map) => {
     // Transects Karachi (WMS)
@@ -931,6 +988,7 @@ const MapContainer = () => {
       'evapotranspiration': { prefix: 'et-', items: TIME_SERIES.evapotranspiration },
       'precipitation': { prefix: 'precipitation-', items: TIME_SERIES.precipitation.map(p => p.id) },
       'snowCover': { prefix: 'snow-', items: TIME_SERIES.snowCover },
+      'temperature': { prefix: 'temperature-', items: TIME_SERIES.temperature.map(t => t.id) },
     };
 
     // Lazy load WFS layers when first toggled on
@@ -1021,6 +1079,18 @@ const MapContainer = () => {
           console.log(`✓ Showing Snow Cover layer: ${snowLayerId}`);
         }
       }
+      if (layerId === 'temperature') {
+        await setupTemperatureLayers(map);
+        loadedLayersCache.add('temperature');
+        // Immediately show the selected layer after setup
+        const { timeSeriesSelections } = useMapStore.getState();
+        const selectedMonth = timeSeriesSelections.temperature || TIME_SERIES.temperature[0].id;
+        const tempLayerId = `temperature-${selectedMonth}`;
+        if (map.getLayer(tempLayerId)) {
+          map.setLayoutProperty(tempLayerId, 'visibility', 'visible');
+          console.log(`✓ Showing Temperature layer: ${tempLayerId}`);
+        }
+      }
       
       // Coastal layers
       const coastalLayerIds = Object.keys(COASTAL_LAYERS);
@@ -1059,7 +1129,7 @@ const MapContainer = () => {
       // Direct layer ID match
       map.setLayoutProperty(layerId, 'visibility', visibility);
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -1233,9 +1303,13 @@ const MapContainer = () => {
         type="snowCover" 
         visible={layerVisibility.snowCover} 
       />
-      <TimeSeriesController 
-        type="precipitation" 
-        visible={layerVisibility.precipitation} 
+      <TimeSeriesController
+        type="precipitation"
+        visible={layerVisibility.precipitation}
+      />
+      <TimeSeriesController
+        type="temperature"
+        visible={layerVisibility.temperature}
       />
 
       <CatchmentInflowsModal />
