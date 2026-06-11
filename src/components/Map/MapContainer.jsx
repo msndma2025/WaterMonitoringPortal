@@ -614,6 +614,7 @@ const MapContainer = () => {
 
   // Setup Temperature layers (Vector data from GeoJSON - shapefiles converted)
   const setupTemperatureLayers = useCallback(async (map) => {
+    console.log('Starting temperature layer setup...');
     const monthMap = {
       jan: 'vjan', feb: 'vfeb', mar: 'vmar', apr: 'vapr',
       may: 'vmay', jun: 'vjun', jul: 'vjul', aug: 'vaug',
@@ -627,9 +628,12 @@ const MapContainer = () => {
 
       if (!map.getSource(sourceId)) {
         try {
-          const resp = await fetch(`/temp_2027/${shapefileName}.geojson`);
-          if (!resp.ok) throw new Error(`Failed to fetch ${shapefileName}.geojson`);
+          const url = `/temp_2027/${shapefileName}.geojson`;
+          console.log(`Fetching: ${url}`);
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${shapefileName}.geojson`);
           const geojson = await resp.json();
+          console.log(`✓ Loaded ${month.label} (${geojson.features.length} features)`);
 
           map.addSource(sourceId, { type: 'geojson', data: geojson });
 
@@ -660,10 +664,12 @@ const MapContainer = () => {
               'fill-opacity': 0.75,
             },
           });
-          console.log(`✓ Temperature layer added: ${month.label}`);
+          console.log(`✓ Temperature layer created: ${month.label}`);
         } catch (e) {
-          console.warn(`Could not load temperature data for ${month.label}:`, e.message);
+          console.error(`❌ Could not load temperature data for ${month.label}:`, e);
         }
+      } else {
+        console.log(`Source already exists: ${sourceId}`);
       }
     }
     console.log('✓ Temperature layers loaded');
