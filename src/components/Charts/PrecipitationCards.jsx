@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './LegendCards.css';
 
 const PRECIP_ITEMS = [
-  { id: 'upper', label: 'Upper Basins', maf: 38.2, color: '#45B7D1', icon: 'fa-solid fa-cloud-rain', gradient: 'linear-gradient(135deg, #45B7D1 0%, #45B7D199 100%)' },
-  { id: 'lower', label: 'Lower Basins', maf: 35.0, color: '#4ECB71', icon: 'fa-solid fa-cloud-showers-heavy', gradient: 'linear-gradient(135deg, #4ECB71 0%, #4ECB7199 100%)' },
-  { id: 'fields', label: 'Rain in Fields', maf: 13.0, color: '#FFA94D', icon: 'fa-solid fa-seedling', gradient: 'linear-gradient(135deg, #FFA94D 0%, #FFA94D99 100%)' },
-  { id: 'total', label: 'Total Rain', maf: 86.2, color: '#00e5ff', icon: 'fa-solid fa-layer-group', gradient: 'linear-gradient(135deg, #00e5ff 0%, #0088aa 100%)' },
+  { id: 'upper', label: 'Upper Basins', maf: 35, color: '#45B7D1', icon: 'fa-solid fa-cloud-rain', gradient: 'linear-gradient(135deg, #45B7D1 0%, #45B7D199 100%)' },
+  { id: 'lower', label: 'Lower Basins', maf: 30, color: '#4ECB71', icon: 'fa-solid fa-cloud-showers-heavy', gradient: 'linear-gradient(135deg, #4ECB71 0%, #4ECB7199 100%)' },
+  { id: 'fields', label: 'Rain in Fields', maf: 10, color: '#FFA94D', icon: 'fa-solid fa-seedling', gradient: 'linear-gradient(135deg, #FFA94D 0%, #FFA94D99 100%)' },
+  { id: 'total', label: 'Total Rain', maf: 75, color: '#00e5ff', icon: 'fa-solid fa-layer-group', gradient: 'linear-gradient(135deg, #00e5ff 0%, #0088aa 100%)' },
 ];
 
 const AnimatedNumber = ({ value, duration = 1800 }) => {

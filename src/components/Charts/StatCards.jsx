@@ -31,9 +31,9 @@ const STATS = [
   {
     id: 'evaporation',
     label: ['Ground Water', 'Extraction'],
-    value: 52,
+    value: 54,
     unit: 'MAF',
-    change: +0.5,
+    change: +2.0,
     icon: 'fa-solid fa-arrow-up-from-ground-water',
     color: '#f472b6',
     gradient: 'linear-gradient(135deg, #f472b6 0%, #db2777 100%)',
@@ -55,9 +55,9 @@ const STATS = [
   {
     id: 'netNationalWater',
     label: ['Net National', 'Water'],
-    value: 234,
+    value: 236,
     unit: 'MAF',
-    change: +5.0,
+    change: +7.0,
     icon: 'fa-solid fa-faucet-drip',
     color: '#a78bfa',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',

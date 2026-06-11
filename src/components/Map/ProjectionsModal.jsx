@@ -7,35 +7,39 @@ import './ProjectionsModal.css';
 const ROWS = [
   {
     year: 2027,
-    inflows: '134 – 140 MAF',
-    status: 'Slightly Below Normal',
-    enso: 'Moderate to strong El Niño',
-    iod: 'Neutral to Negative IOD likely',
-    reasoning: 'El Niño typically weakens monsoon. Higher temperatures boost melt but may not fully compensate for reduced rainfall. Western Disturbance expected average to below.',
+    enso: 'El Niño dominant, weakening toward neutral late year',
+    iod: 'Neutral to weak positive IOD',
+    rimInflow: '135–140 MAF',
+    basinRainfall: '24–28 MAF',
+    farmRainfall: '8–9 MAF',
+    overall: 'Monsoon suppressed; plains rainfall deficient, but snow/glacier melt keeps RIM inflow near-normal to slightly below-normal',
   },
   {
     year: 2028,
-    inflows: '140 – 145 MAF',
-    status: 'Near Normal',
-    enso: 'Delaying El Niño — Neutral',
-    iod: 'Variable, positive IOD possible',
-    reasoning: 'Recovery Phase. Better chance of normal monsoon + continued warming supports melt.',
+    enso: 'Neutral to weak La Niña tendency after El Niño decay',
+    iod: 'Neutral to weak negative',
+    rimInflow: '140–148 MAF',
+    basinRainfall: '34–38 MAF',
+    farmRainfall: '12–14 MAF',
+    overall: 'Monsoon recovery year; higher rainfall and higher flood-risk sensitivity than 2027',
   },
   {
     year: 2029,
-    inflows: '142 – 151 MAF',
-    status: 'Near Normal to Above',
-    enso: 'Neutral to weak La Niña',
-    iod: 'Positive IOD possible',
-    reasoning: 'Favorable for monsoon. Strong melt contribution due to warming trend.',
+    enso: 'Mostly neutral ENSO',
+    iod: 'Neutral IOD',
+    rimInflow: '138–145 MAF',
+    basinRainfall: '32–36 MAF',
+    farmRainfall: '11–13 MAF',
+    overall: 'Near-normal water year; no strong ENSO/IOD forcing assumed',
   },
   {
     year: 2030,
-    inflows: '138 – 148 MAF',
-    status: 'Near Normal',
-    enso: 'Neutral (most likely)',
-    iod: 'Variable',
-    reasoning: 'Balanced year. High uncertainty; depends on exact ENSO/IOD alignment.',
+    enso: 'Neutral baseline / weak oscillation possible',
+    iod: 'Neutral to weak positive IOD possible',
+    rimInflow: '140–146 MAF',
+    basinRainfall: '34–36 MAF',
+    farmRainfall: '12–13 MAF',
+    overall: 'Close to long-term average; low confidence, climatological projection preferred',
   },
 ];
 
@@ -44,22 +48,24 @@ const TableBody = () => (
     <thead>
       <tr>
         <th className="pm-th pm-th-year">Year</th>
-        <th className="pm-th">Projected Rim Inflows (MAF)</th>
-        <th className="pm-th">Status</th>
         <th className="pm-th">Likely ENSO Phase</th>
-        <th className="pm-th">IOD &amp; Other Factors</th>
-        <th className="pm-th pm-th-reason">Overall Reasoning</th>
+        <th className="pm-th">Likely IOD Phase</th>
+        <th className="pm-th">Total RIM Inflow</th>
+        <th className="pm-th">Basin Rainfall</th>
+        <th className="pm-th">Farm-field Rainfall</th>
+        <th className="pm-th pm-th-reason">Overall</th>
       </tr>
     </thead>
     <tbody>
       {ROWS.map((r, i) => (
         <tr key={r.year} className={i % 2 === 0 ? 'pm-row-dark' : 'pm-row-black'}>
           <td className="pm-td pm-td-year">{r.year}</td>
-          <td className="pm-td pm-td-inflows">{r.inflows}</td>
-          <td className="pm-td pm-td-status">{r.status}</td>
           <td className="pm-td">{r.enso}</td>
           <td className="pm-td">{r.iod}</td>
-          <td className="pm-td pm-td-reason">{r.reasoning}</td>
+          <td className="pm-td">{r.rimInflow}</td>
+          <td className="pm-td">{r.basinRainfall}</td>
+          <td className="pm-td">{r.farmRainfall}</td>
+          <td className="pm-td pm-td-reason">{r.overall}</td>
         </tr>
       ))}
     </tbody>
