@@ -100,6 +100,7 @@ export const useMapStore = create((set, get) => ({
     evapotranspiration: 2024,
     snowCover: 2025,
     precipitation: '2021-2025',
+    temperature: 'jan',
   },
   setTimeSeriesSelection: (type, value) =>
     set((state) => ({
