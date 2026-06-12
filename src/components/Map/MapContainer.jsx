@@ -629,29 +629,37 @@ const MapContainer = () => {
       if (!map.getSource(sourceId)) {
         try {
           const url = `/temp_2027/${shapefileName}.geojson`;
-          console.log(`Fetching: ${url}`);
           const resp = await fetch(url);
           if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${shapefileName}.geojson`);
           const geojson = await resp.json();
-          console.log(`✓ Loaded ${month.label} (${geojson.features.length} features)`);
 
-          map.addSource(sourceId, { type: 'geojson', data: geojson });
+          // Filter out NoData features (DN = -2147483648 is Int32.MinValue, used for nodata)
+          const validFeatures = geojson.features.filter(f => {
+            const dn = f.properties?.DN;
+            return dn != null && dn > -1000 && dn < 1000;
+          });
 
-          // Create color expression based on DN values
+          const cleanGeojson = {
+            type: 'FeatureCollection',
+            features: validFeatures
+          };
+
+          console.log(`✓ ${month.label}: ${validFeatures.length}/${geojson.features.length} valid features`);
+
+          map.addSource(sourceId, { type: 'geojson', data: cleanGeojson });
+
+          // Use step expression for clearer classification
           const colorExpr = [
-            'interpolate',
-            ['linear'],
+            'step',
             ['get', 'DN'],
-            -30, '#2166ac', // Cold blue
-            -20, '#4575b4',
-            -10, '#74add1',
-            0, '#abd9e9',
-            10, '#e0f3f8',
-            20, '#ffffbf',
-            30, '#fee090',
-            40, '#fdae61',
-            50, '#f46d43',
-            60, '#d73027', // Hot red
+            '#2166ac', // < 0
+            0, '#4575b4',
+            5, '#74add1',
+            10, '#abd9e9',
+            15, '#fee090',
+            20, '#fdae61',
+            25, '#f46d43',
+            30, '#d73027', // >= 30
           ];
 
           map.addLayer({
@@ -662,17 +670,16 @@ const MapContainer = () => {
             paint: {
               'fill-color': colorExpr,
               'fill-opacity': 0.75,
+              'fill-outline-color': 'rgba(0,0,0,0)',
             },
           });
           console.log(`✓ Temperature layer created: ${month.label}`);
         } catch (e) {
           console.error(`❌ Could not load temperature data for ${month.label}:`, e);
         }
-      } else {
-        console.log(`Source already exists: ${sourceId}`);
       }
     }
-    console.log('✓ Temperature layers loaded');
+    console.log('✓ All temperature layers loaded');
   }, []);
 
   // Setup Coastal layers
