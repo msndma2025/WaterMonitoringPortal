@@ -132,6 +132,11 @@ const ChartsPanel = () => {
     const rows = comparisonData.filter(
       (r) => r['Month'] && r['Month'] !== 'Total Inflow at RIMs',
     );
+    const projected2027 = {
+      January: 5.0, February: 5.8, March: 8.0, April: 14.0,
+      May: 13.5, June: 18.7, July: 25.0, August: 18.0,
+      September: 15.0, October: 5.4, November: 4.5, December: 4.1,
+    };
     return {
       years: rows.map((r) => r['Month']),
       series: [
@@ -146,6 +151,12 @@ const ChartsPanel = () => {
           name: '2026 Inflow (MAF)',
           color: '#22c55e',
           data: rows.map((r) => num(r['2026 Inflow (MAF)'])),
+        },
+        {
+          id: 'inflow2027',
+          name: '2027 Projected Inflow (MAF)',
+          color: '#ec4899',
+          data: rows.map((r) => projected2027[r['Month']] ?? null),
         },
       ],
     };
@@ -176,7 +187,7 @@ const ChartsPanel = () => {
     comparison: {
       data: getComparisonChartData(),
       title: 'Monthly Inflow Comparison',
-      subtitle: '2025 vs 2026 · Inflow at RIMs (MAF)',
+      subtitle: '2025 vs 2026 vs 2027 Projected · Inflow at RIMs (MAF)',
     },
   };
 

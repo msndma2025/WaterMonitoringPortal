@@ -30,6 +30,7 @@ import TimeSeriesController from './TimeSeriesController';
 import CatchmentInflowsModal from './CatchmentInflowsModal';
 import LossesModal from './LossesModal';
 import InflowsCompModal from './InflowsCompModal';
+import MonthlyInflowsModal from './MonthlyInflowsModal';
 import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
@@ -1328,6 +1329,7 @@ const MapContainer = () => {
       <CatchmentInflowsModal />
       <LossesModal />
       <InflowsCompModal />
+      <MonthlyInflowsModal />
       <ProjectionsModal />
       <div id="map-modal-portal" />
 

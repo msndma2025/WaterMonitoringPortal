@@ -7,7 +7,7 @@ import About from './About';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
 
   const sidebarVariants = {
@@ -89,6 +89,16 @@ const Sidebar = ({ isOpen, onClose }) => {
           >
             <i className="fas fa-water"></i>
             <span>Water Inflows 2025–2026</span>
+          </motion.button>
+          <motion.button
+            className="catchment-inflows-btn monthly-inflows-btn"
+            onClick={() => { setShowMonthlyInflowsModal(true); onClose(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ marginTop: '0.4rem' }}
+          >
+            <i className="fas fa-calendar-alt"></i>
+            <span>Monthly Inflows 2025–2027</span>
           </motion.button>
           <motion.button
             className="catchment-inflows-btn projections-btn"
