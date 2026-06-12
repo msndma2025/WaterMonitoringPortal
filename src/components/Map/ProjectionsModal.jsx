@@ -7,7 +7,7 @@ import './ProjectionsModal.css';
 const ROWS = [
   {
     year: 2027,
-    enso: 'El Niño dominant, weakening toward neutral late year',
+    enso: 'El Nino dominant, weakening toward neutral late year',
     iod: 'Neutral to weak positive IOD',
     rimInflow: '135–140 MAF',
     basinRainfall: '24–28 MAF',
@@ -16,7 +16,7 @@ const ROWS = [
   },
   {
     year: 2028,
-    enso: 'Neutral to weak La Niña tendency after El Niño decay',
+    enso: 'Neutral to weak La Nina tendency after El Nino decay',
     iod: 'Neutral to weak negative',
     rimInflow: '140–148 MAF',
     basinRainfall: '34–38 MAF',
