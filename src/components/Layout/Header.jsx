@@ -58,11 +58,6 @@ const Header = ({ onMenuToggle }) => {
 
         {/* Right: Actions */}
         <div className="header-right">
-          <div className="header-status-pill">
-            <span className="status-dot"></span>
-            <span>Live</span>
-          </div>
-
           <Link to="/slides" className="header-btn">
             <i className="fas fa-images"></i>
           </Link>

@@ -22,7 +22,19 @@
       "Bash(git commit -m 'Filter NoData values and fix temperature layer rendering *)",
       "Bash(git commit -m 'Re-add Projections 2027-2030 button under Water Inflows *)",
       "Bash(git commit -m 'Replace tilde n with regular n in El Nino/La Nina *)",
-      "Bash(git commit -m 'Add Monthly Inflows 2025-2027 modal with 2027 projection in comparison chart *)"
+      "Bash(git commit -m 'Add Monthly Inflows 2025-2027 modal with 2027 projection in comparison chart *)",
+      "Bash(python -c \"import json;d=json.load\\(open\\('Monsoon_Basin1.geojson'\\)\\);print\\('features',len\\(d['features']\\)\\);print\\('geom types',set\\(f['geometry']['type'] for f in d['features']\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(cp Monsoon_Basin2.geojson public/Monsoon_Basin2.geojson)",
+      "Bash(node_modules/.bin/eslint src/components/Map/MapContainer.jsx)",
+      "Bash(echo \"eslint-exit-$?\")",
+      "Bash(node node_modules/vite/bin/vite.js --version)",
+      "Bash(node node_modules/vite/bin/vite.js --host)",
+      "Bash(curl -s --max-time 30 \"http://172.18.1.4:8080/geoserver/abdul_sattar/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=abdul_sattar:Provincial_Boundary&outputFormat=application/json&srsName=EPSG:4326\" -o /tmp/prov.json)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(wc -c /tmp/prov.json)",
+      "Bash(head -c 300 /tmp/prov.json)",
+      "Bash(curl -s --max-time 30 \"http://172.18.1.4:8080/geoserver/abdul_sattar/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=abdul_sattar:Provincial_Boundary&outputFormat=application/json&srsName=EPSG:4326\" -o prov_boundary.json)"
     ]
   }
 }

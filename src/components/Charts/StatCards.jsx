@@ -44,7 +44,7 @@ const STATS = [
     id: 'rainField',
     label: ['Rains in', 'Field'],
     value: 10,
-    unit: 'mm',
+    unit: 'MAF',
     change: +1.2,
     icon: 'fa-solid fa-cloud-rain',
     color: '#fbbf24',

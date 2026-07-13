@@ -5,18 +5,18 @@ import { useMapStore } from '../../store/mapStore';
 import './InflowsCompModal.css';
 
 const ROWS = [
-  { month: 'January',   y2025: 4.0,  y2026: 4.0  },
-  { month: 'February',  y2025: 4.0,  y2026: 5.0  },
-  { month: 'March',     y2025: 5.0,  y2026: 7.0  },
-  { month: 'April',     y2025: 9.0,  y2026: 13.0 },
-  { month: 'May',       y2025: 10.5, y2026: 12.0 },
-  { month: 'June',      y2025: 18.0, y2026: 19.0 },
-  { month: 'July',      y2025: 27.0, y2026: 27.0 },
-  { month: 'August',    y2025: 28.0, y2026: 20.0 },
-  { month: 'September', y2025: 29.4, y2026: 18.0 },
+  { month: 'January',   y2025: 4.0,  y2026: 3.0  },
+  { month: 'February',  y2025: 4.0,  y2026: 4.0  },
+  { month: 'March',     y2025: 5.0,  y2026: 6.0  },
+  { month: 'April',     y2025: 9.0,  y2026: 11.5 },
+  { month: 'May',       y2025: 10.5, y2026: 10.7 },
+  { month: 'June',      y2025: 18.0, y2026: 16.0 },
+  { month: 'July',      y2025: 27.0, y2026: 25.0 },
+  { month: 'August',    y2025: 28.0, y2026: 22.0 },
+  { month: 'September', y2025: 29.4, y2026: 19.0 },
   { month: 'October',   y2025: 4.5,  y2026: 7.0  },
-  { month: 'November',  y2025: 4.0,  y2026: 5.0  },
-  { month: 'December',  y2025: 3.6,  y2026: 4.0  },
+  { month: 'November',  y2025: 4.0,  y2026: 6.0  },
+  { month: 'December',  y2025: 3.6,  y2026: 5.0  },
 ];
 
 const TableBody = () => (
@@ -39,7 +39,7 @@ const TableBody = () => (
       <tr className="ic-row-total">
         <td className="ic-td ic-td-month ic-td-total-label">Total Inflow at RIMs</td>
         <td className="ic-td ic-td-total-val">145 – 149</td>
-        <td className="ic-td ic-td-total-val">140 – 142</td>
+        <td className="ic-td ic-td-total-val">135 – 137</td>
       </tr>
     </tbody>
   </>

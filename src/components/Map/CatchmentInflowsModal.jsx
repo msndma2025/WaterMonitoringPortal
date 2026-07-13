@@ -5,9 +5,9 @@ import { useMapStore } from '../../store/mapStore';
 import './CatchmentInflowsModal.css';
 
 const ROWS = [
-  { catchment: 'Indus + Kabul', snowPct: '78 – 80', snowMaf: 76,   rainPct: '20 – 22', rainMaf: 19,   total: 95   },
-  { catchment: 'Jhelum',        snowPct: '58 – 60', snowMaf: 16,   rainPct: '40 – 42', rainMaf: 8,    total: 24   },
-  { catchment: 'Chenab',        snowPct: '63 – 65', snowMaf: 15,   rainPct: '35 – 37', rainMaf: 6,    total: 21   },
+  { catchment: 'Indus + Kabul', snowPct: '78 – 80', snowMaf: 74,   rainPct: '20 – 22', rainMaf: 18,   total: 92   },
+  { catchment: 'Jhelum',        snowPct: '58 – 60', snowMaf: 15,   rainPct: '40 – 42', rainMaf: 7,    total: 22   },
+  { catchment: 'Chenab',        snowPct: '63 – 65', snowMaf: 14,   rainPct: '35 – 37', rainMaf: 6,    total: 20   },
   { catchment: 'Ravi',          snowPct: '—',       snowMaf: '—',  rainPct: '100',     rainMaf: 0.9,  total: 0.9  },
   { catchment: 'Sutlej',        snowPct: '—',       snowMaf: '—',  rainPct: '100',     rainMaf: 0.98, total: 0.98 },
 ];

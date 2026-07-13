@@ -27,6 +27,7 @@ import {
 import MapControls from './MapControls';
 import StorageComparison from './StorageComparison';
 import TimeSeriesController from './TimeSeriesController';
+import PriorityLegend from './PriorityLegend';
 import CatchmentInflowsModal from './CatchmentInflowsModal';
 import LossesModal from './LossesModal';
 import InflowsCompModal from './InflowsCompModal';
@@ -783,16 +784,16 @@ const MapContainer = () => {
               visibility: 'none',
               'text-field': ['get', 'CNLName'],
               'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
-              'text-size': 11,
+              'text-size': 14,
               'text-allow-overlap': false,
               'text-padding': 5,
               'text-offset': [0, -0.8],
               'text-anchor': 'bottom',
             },
             paint: {
-              'text-color': '#90EE90',
-              'text-halo-color': 'rgba(0, 0, 0, 0.9)',
-              'text-halo-width': 2,
+              'text-color': '#0f172a',
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 3,
             },
           });
 
@@ -852,16 +853,16 @@ const MapContainer = () => {
               visibility: 'none',
               'text-field': ['get', 'CCAName'],
               'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
-              'text-size': 10,
+              'text-size': 14,
               'text-allow-overlap': false,
               'text-padding': 5,
               'text-offset': [0, -0.8],
               'text-anchor': 'bottom',
             },
             paint: {
-              'text-color': '#FFA07A',
-              'text-halo-color': 'rgba(0, 0, 0, 0.9)',
-              'text-halo-width': 2,
+              'text-color': '#0f172a',
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 3,
             },
           });
 
@@ -920,16 +921,16 @@ const MapContainer = () => {
               visibility: 'none',
               'text-field': ['get', 'CCAName'],
               'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
-              'text-size': 9,
+              'text-size': 14,
               'text-allow-overlap': false,
               'text-padding': 5,
               'text-offset': [0, -0.8],
               'text-anchor': 'bottom',
             },
             paint: {
-              'text-color': '#87CEFA',
-              'text-halo-color': 'rgba(0, 0, 0, 0.9)',
-              'text-halo-width': 2,
+              'text-color': '#0f172a',
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 3,
             },
           });
 
@@ -938,6 +939,249 @@ const MapContainer = () => {
       }
     } catch (e) {
       console.warn('Could not load Distributary Canals:', e.message);
+    }
+  }, []);
+
+  // Setup Monsoon Basin layer (local GeoJSON - points, classified by Priority)
+  const setupMonsoonBasin = useCallback(async (map) => {
+    try {
+      const resp = await fetch('/final_300_points.geojson');
+      if (resp.ok) {
+        const geojson = await resp.json();
+        if (!map.getSource('monsoon-basin-source')) {
+          map.addSource('monsoon-basin-source', { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: 'monsoon-basin-layer',
+            type: 'circle',
+            source: 'monsoon-basin-source',
+            layout: { visibility: 'none' },
+            paint: {
+              // Classify colour on the "Priority" column
+              'circle-color': [
+                'match',
+                ['to-number', ['get', 'Priority']],
+                1, '#ef4444', // Priority 1 (high)
+                2, '#3b82f6', // Priority 2 (blue)
+                '#38bdf8',    // fallback
+              ],
+              'circle-radius': [
+                'match',
+                ['to-number', ['get', 'Priority']],
+                1, 8,
+                2, 6,
+                6,
+              ],
+              'circle-stroke-color': '#ffffff',
+              'circle-stroke-width': 1,
+              'circle-opacity': 0.9,
+            },
+          });
+
+          // Build tooltip HTML from the feature attributes
+          const buildHtml = (p) => {
+            const row = (label, value) =>
+              (value !== undefined && value !== null && value !== '')
+                ? `<div><span style="color:#8899aa;">${label}:</span> ${value}</div>`
+                : '';
+            const priority = (p.Priority !== undefined && p.Priority !== null)
+              ? Number(p.Priority)
+              : null;
+            const lat = (p.Lattitude !== undefined && p.Lattitude !== null)
+              ? Number(p.Lattitude).toFixed(4) : null;
+            const lng = (p.Longitude !== undefined && p.Longitude !== null)
+              ? Number(p.Longitude).toFixed(4) : null;
+            return `
+              <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
+                <div style="font-weight:700;color:#38bdf8;font-size:14px;margin-bottom:4px;">Point ${p.OBJECTID_1 ?? ''}</div>
+                ${row('Priority', priority)}
+                ${row('Tehsil', p.ADM3_EN)}
+                ${row('District', p.ADM2_EN)}
+                ${row('Province', p.ADM1_EN)}
+                ${row('Country', p.ADM0_EN)}
+                ${(lat && lng) ? `<div><span style="color:#8899aa;">Lat, Lng:</span> ${lat}, ${lng}</div>` : ''}
+              </div>
+            `;
+          };
+
+          // Hover tooltip showing the feature attributes
+          const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            className: 'basin-tooltip',
+            maxWidth: '260px',
+          });
+
+          map.on('mousemove', 'monsoon-basin-layer', (e) => {
+            if (e.features && e.features.length > 0) {
+              map.getCanvas().style.cursor = 'pointer';
+              popup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+            }
+          });
+          map.on('mouseleave', 'monsoon-basin-layer', () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+          });
+
+          console.log('\u2713 Monsoon Basin (final_300_points) layer loaded');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load Monsoon Basin:', e.message);
+    }
+  }, []);
+
+  // Setup Monsoon Basin 2 layer (local GeoJSON - points)
+  const setupMonsoonBasin2 = useCallback(async (map) => {
+    try {
+      const resp = await fetch('/Monsoon_Basin2.geojson');
+      if (resp.ok) {
+        const geojson = await resp.json();
+        if (!map.getSource('monsoon-basin2-source')) {
+          map.addSource('monsoon-basin2-source', { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: 'monsoon-basin2-layer',
+            type: 'circle',
+            source: 'monsoon-basin2-source',
+            layout: { visibility: 'none' },
+            paint: {
+              'circle-radius': 4,
+              'circle-color': '#a78bfa',
+              'circle-stroke-color': '#ffffff',
+              'circle-stroke-width': 1,
+              'circle-opacity': 0.9,
+            },
+          });
+
+          // Reverse-geocode a place name from lat/long via the Mapbox Geocoding API.
+          const geocodeCache = new Map();
+          const reverseGeocode = async (lng, lat) => {
+            const key = `${lng.toFixed(4)},${lat.toFixed(4)}`;
+            if (geocodeCache.has(key)) return geocodeCache.get(key);
+            try {
+              const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json`
+                + `?types=place,locality,district,region&limit=1&access_token=${MAP_CONFIG.accessToken}`;
+              const r = await fetch(url);
+              if (!r.ok) return null;
+              const data = await r.json();
+              const name = data.features && data.features.length ? data.features[0].place_name : null;
+              geocodeCache.set(key, name);
+              return name;
+            } catch {
+              return null;
+            }
+          };
+
+          const buildHtml = (p, lat, lng, place) => {
+            const rain = (p.Annual_Rai !== undefined && p.Annual_Rai !== null)
+              ? `${Number(p.Annual_Rai).toFixed(1)} mm`
+              : 'N/A';
+            return `
+              <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
+                <div style="font-weight:700;color:#a78bfa;font-size:14px;margin-bottom:4px;">Point ${p.No_ ?? ''}</div>
+                <div><span style="color:#8899aa;">Place:</span> ${place || 'Locating…'}</div>
+                <div><span style="color:#8899aa;">Annual Rainfall:</span> ${rain}</div>
+                <div><span style="color:#8899aa;">Lat, Lng:</span> ${lat.toFixed(4)}, ${lng.toFixed(4)}</div>
+              </div>
+            `;
+          };
+
+          // Click popup showing point details
+          const popup = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: true,
+            className: 'basin-tooltip',
+            maxWidth: '260px',
+          });
+
+          map.on('click', 'monsoon-basin2-layer', (e) => {
+            if (e.features && e.features.length > 0) {
+              const p = e.features[0].properties;
+              const lng = p.Longitude !== undefined ? Number(p.Longitude) : e.lngLat.lng;
+              const lat = p.Latitude !== undefined ? Number(p.Latitude) : e.lngLat.lat;
+
+              // Show immediately with a placeholder, then fill in the place name.
+              popup.setLngLat(e.lngLat).setHTML(buildHtml(p, lat, lng, null)).addTo(map);
+
+              reverseGeocode(lng, lat).then((place) => {
+                // Only update if this popup is still the one open for this point
+                if (popup.isOpen()) {
+                  popup.setHTML(buildHtml(p, lat, lng, place || 'Unknown'));
+                }
+              });
+            }
+          });
+
+          map.on('mouseenter', 'monsoon-basin2-layer', () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+          map.on('mouseleave', 'monsoon-basin2-layer', () => {
+            map.getCanvas().style.cursor = '';
+          });
+
+          console.log('✓ Monsoon Basin 2 layer loaded');
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load Monsoon Basin 2:', e.message);
+    }
+  }, []);
+
+  // Setup Wapda Proposed layer (single fixed point - Sindh Barrage)
+  const setupWapdaProposed = useCallback((map) => {
+    const coordinates = [67.80059265, 24.358980]; // [lng, lat]
+    if (!map.getSource('wapda-proposed-source')) {
+      map.addSource('wapda-proposed-source', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: { name: 'Sindh Barrage' },
+              geometry: { type: 'Point', coordinates },
+            },
+          ],
+        },
+      });
+      map.addLayer({
+        id: 'wapda-proposed-layer',
+        type: 'circle',
+        source: 'wapda-proposed-source',
+        layout: { visibility: 'none' },
+        paint: {
+          'circle-radius': 9,
+          'circle-color': '#22c55e',
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 2,
+          'circle-opacity': 0.95,
+        },
+      });
+
+      // Tooltip showing the barrage name
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: 'basin-tooltip',
+        maxWidth: '220px',
+      });
+      const html = `
+        <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
+          <div style="font-weight:700;color:#22c55e;font-size:14px;margin-bottom:4px;">Wapda Proposed</div>
+          <div><span style="color:#8899aa;">Name:</span> Sindh Barrage Project</div>
+          <div><span style="color:#8899aa;">Height:</span> 39.37000000000</div>
+          <div><span style="color:#8899aa;">G_Storage:</span> 2.00000000000</div>
+        </div>
+      `;
+      map.on('mouseenter', 'wapda-proposed-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
+        popup.setLngLat(coordinates).setHTML(html).addTo(map);
+      });
+      map.on('mouseleave', 'wapda-proposed-layer', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      console.log('✓ Wapda Proposed (Sindh Barrage) layer loaded');
     }
   }, []);
 
@@ -989,6 +1233,9 @@ const MapContainer = () => {
       'mainCanals': ['main-canals-layer', 'main-canals-labels'],
       'branchCanals': ['branch-canals-layer', 'branch-canals-labels'],
       'distributaryCanals': ['distributary-canals-layer', 'distributary-canals-labels'],
+      'monsoonBasin': 'monsoon-basin-layer',
+      'monsoonBasin2': 'monsoon-basin2-layer',
+      'wapdaProposed': 'wapda-proposed-layer',
       'industries': 'industries-layer',
       'indus': 'indus-layer',
       'jhelum': 'jhelum-layer',
@@ -1048,6 +1295,24 @@ const MapContainer = () => {
       if (layerId === 'distributaryCanals') {
         await setupDistributaryCanals(map);
         loadedLayersCache.add('distributaryCanals');
+      }
+
+      // Monsoon Basin layer
+      if (layerId === 'monsoonBasin') {
+        await setupMonsoonBasin(map);
+        loadedLayersCache.add('monsoonBasin');
+      }
+
+      // Monsoon Basin 2 layer
+      if (layerId === 'monsoonBasin2') {
+        await setupMonsoonBasin2(map);
+        loadedLayersCache.add('monsoonBasin2');
+      }
+
+      // Wapda Proposed layer (single point)
+      if (layerId === 'wapdaProposed') {
+        setupWapdaProposed(map);
+        loadedLayersCache.add('wapdaProposed');
       }
 
       // Industries layer
@@ -1143,7 +1408,12 @@ const MapContainer = () => {
       // Direct layer ID match
       map.setLayoutProperty(layerId, 'visibility', visibility);
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+
+    // Zoom in on the Wapda Proposed point (Sindh Barrage) when enabled
+    if (layerId === 'wapdaProposed' && visible) {
+      map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
+    }
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupMonsoonBasin, setupMonsoonBasin2, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -1308,6 +1578,7 @@ const MapContainer = () => {
     <div className="map-container">
       <div ref={mapContainerRef} className="map-canvas" />
       <MapControls />
+      <PriorityLegend />
       <StorageComparison />
       <TimeSeriesController 
         type="evapotranspiration" 

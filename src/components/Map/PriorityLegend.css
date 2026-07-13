@@ -1,0 +1,64 @@
+.priority-legend {
+  position: absolute;
+  bottom: 24px;
+  left: 16px;
+  z-index: 6;
+  padding: 0.7rem 0.9rem;
+  background: rgba(12, 20, 36, 0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f0f0f0;
+  font-family: sans-serif;
+  cursor: grab;
+  user-select: none;
+}
+
+.priority-legend:active {
+  cursor: grabbing;
+}
+
+.priority-legend-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #38bdf8;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.priority-legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.priority-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.priority-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.priority-legend-label {
+  font-size: 13px;
+  color: #e5e7eb;
+}
+
+/* Keep the legend clear of the floating panels in fullscreen mode */
+.map-section.map-fullscreen .priority-legend {
+  bottom: 110px;
+  left: 20px;
+  z-index: 60;
+}

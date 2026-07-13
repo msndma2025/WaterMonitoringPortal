@@ -9,7 +9,7 @@ const ROWS = [
     year: 2027,
     enso: 'El Nino dominant, weakening toward neutral late year',
     iod: 'Neutral to weak positive IOD',
-    rimInflow: '135–140 MAF',
+    rimInflow: '134–140 MAF',
     basinRainfall: '24–28 MAF',
     farmRainfall: '8–9 MAF',
     overall: 'Monsoon suppressed; plains rainfall deficient, but snow/glacier melt keeps RIM inflow near-normal to slightly below-normal',

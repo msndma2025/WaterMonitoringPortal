@@ -6,6 +6,7 @@ import {
   ComposedChart,
   Line,
   Area,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -131,21 +132,38 @@ const DataPointDot = ({ cx, cy, payload, dataKey, stroke, seriesStats, totalPoin
       placeAbove = myVal >= maxOther;
     }
   }
-  const labelY = placeAbove ? cy - 14 : cy + 22;
+  const labelY = placeAbove ? cy - 18 : cy + 20;
+
+  const label = fmtValue(realVal, true);
+  const fontSize = 15;
+  const padX = 7;
+  const badgeW = label.length * fontSize * 0.62 + padX * 2;
+  const badgeH = fontSize + 8;
 
   return (
     <g>
       <circle cx={cx} cy={cy} r={5} fill={stroke} />
+      {/* White pill behind the value for readability */}
+      <rect
+        x={cx - badgeW / 2}
+        y={labelY - badgeH / 2}
+        width={badgeW}
+        height={badgeH}
+        rx={badgeH / 2}
+        fill="#ffffff"
+        stroke={stroke}
+        strokeWidth={1.5}
+      />
       <text
         x={cx}
         y={labelY}
         textAnchor="middle"
+        dominantBaseline="central"
         fill={stroke}
-        fontSize={17}
+        fontSize={fontSize}
         fontWeight={700}
-        style={{ textShadow: '0 0 6px rgba(0,0,0,0.95), 0 1px 3px rgba(0,0,0,0.85)' }}
       >
-        {fmtValue(realVal, true)}
+        {label}
       </text>
     </g>
   );
@@ -366,8 +384,26 @@ const TimeSeriesChart = ({
           />
         ))}
 
-        {/* Gradient fills */}
-        {visibleSeries.map((s, i) => (
+        {/* Comparison mode: grouped columns beneath the lines */}
+        {isComparison && visibleSeries.map((s, i) => (
+          <Bar
+            key={`b-${s.id}`}
+            dataKey={s.id}
+            name={s.name}
+            fill={s.color}
+            fillOpacity={0.32}
+            stroke="none"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={maximized ? 34 : 22}
+            animationDuration={1200}
+            animationBegin={i * 120}
+            animationEasing="ease-out"
+            isAnimationActive={true}
+          />
+        ))}
+
+        {/* Gradient fills (non-comparison line/area view) */}
+        {!isComparison && visibleSeries.map((s, i) => (
           <Area
             key={`a-${s.id}`}
             type="monotone"
@@ -391,7 +427,6 @@ const TimeSeriesChart = ({
             name={s.name}
             stroke={s.color}
             strokeWidth={maximized ? 4.5 : 3.8}
-            style={{ filter: `drop-shadow(0 0 4px ${s.color}80)` }}
             dot={maximized || activeTab === 'comparison'
               ? (props) => <DataPointDot {...props} seriesStats={seriesStats} totalPoints={totalPoints} seriesIdx={i} allSeriesIds={visibleSeries.map((vs) => vs.id)} />
               : false
