@@ -1,5 +1,6 @@
 // @refresh reset
 import { useEffect, useRef, useCallback } from 'react';
+import { motion, useDragControls } from 'framer-motion';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { 
@@ -32,6 +33,8 @@ import CatchmentInflowsModal from './CatchmentInflowsModal';
 import LossesModal from './LossesModal';
 import InflowsCompModal from './InflowsCompModal';
 import MonthlyInflowsModal from './MonthlyInflowsModal';
+import SubBasinsModal from './SubBasinsModal';
+import DamLevelsModal from './DamLevelsModal';
 import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
@@ -46,7 +49,8 @@ const MapContainer = () => {
   const mapRef = useRef(null);
   const mapInitializedRef = useRef(false);
   const { setMapRef, mapStyle, layerVisibility, activeLayerOrder, reorderLayers, setIsLoading, mapFullscreen, setMapFullscreen } = useMapStore();
-  
+  const layerOrderDragControls = useDragControls();
+
   // Track current layers to restore after style change
   const activeLayersRef = useRef(new Set());
 
@@ -226,6 +230,119 @@ const MapContainer = () => {
     }
   }, []);
 
+  // Setup Sub-Basins layer (multiple local GeoJSON polygons from /umairdata)
+  const setupSubBasins = useCallback(async (map) => {
+    if (map.getSource('sub-basins')) return;
+    const SUB_BASINS = [
+      { file: 'astore', label: 'Astore', color: '#f97316' },
+      { file: 'gilgit', label: 'Gilgit', color: '#22d3ee' },
+      { file: 'indus', label: 'Indus', color: '#3b82f6' },
+      { file: 'indus2', label: 'Indus (Lower)', color: '#6366f1' },
+      { file: 'shigar', label: 'Shigar', color: '#a855f7' },
+      { file: 'shyok', label: 'Shyok', color: '#10b981' },
+    ];
+    try {
+      const features = [];
+      await Promise.all(SUB_BASINS.map(async (b) => {
+        const resp = await fetch(`/umairdata/${b.file}.geojson`);
+        if (!resp.ok) {
+          console.warn(`Could not load sub-basin ${b.file}: ${resp.status}`);
+          return;
+        }
+        const geojson = await resp.json();
+        (geojson.features || []).forEach((f) => {
+          features.push({
+            ...f,
+            properties: { ...f.properties, subBasin: b.label, subBasinColor: b.color },
+          });
+        });
+      }));
+
+      map.addSource('sub-basins', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features },
+      });
+
+      map.addLayer({
+        id: 'sub-basins-fill',
+        type: 'fill',
+        source: 'sub-basins',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-color': ['get', 'subBasinColor'],
+          'fill-opacity': 0.45,
+        },
+      });
+
+      map.addLayer({
+        id: 'sub-basins-outline',
+        type: 'line',
+        source: 'sub-basins',
+        layout: { visibility: 'none' },
+        paint: { 'line-color': ['get', 'subBasinColor'], 'line-width': 1.5 },
+      });
+
+      // Basin name labels placed at each polygon's centroid
+      map.addLayer({
+        id: 'sub-basins-labels',
+        type: 'symbol',
+        source: 'sub-basins',
+        layout: {
+          visibility: 'none',
+          'text-field': ['get', 'subBasin'],
+          'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
+          'text-size': 14,
+          'text-allow-overlap': false,
+          'symbol-placement': 'point',
+        },
+        paint: {
+          'text-color': '#ffffff',
+          'text-halo-color': '#000000',
+          'text-halo-width': 1.5,
+        },
+      });
+
+      // Tooltip on hover
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: 'basin-tooltip',
+      });
+
+      map.on('mousemove', 'sub-basins-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          map.getCanvas().style.cursor = 'pointer';
+          const props = e.features[0].properties;
+          const color = props.subBasinColor || '#00e5ff';
+          // c_area is the catchment area in km²
+          const catchment = props.c_area != null
+            ? `${Math.round(Number(props.c_area)).toLocaleString('en-US')} km²`
+            : null;
+          const glacier = props.g_area != null
+            ? `${Math.round(Number(props.g_area)).toLocaleString('en-US')} km²`
+            : null;
+          const html = `
+            <div style="padding:12px 18px;font-family:sans-serif;font-size:16px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;">
+              <strong style="font-size:17px;color:${color};">${props.subBasin} Sub-Basin</strong>
+              ${catchment ? `<div style="margin-top:5px;font-size:15px;color:#aaa;">Catchment area: <span style="color:${color};font-weight:700;">${catchment}</span></div>` : ''}
+              ${glacier ? `<div style="margin-top:2px;font-size:15px;color:#aaa;">Glacier area: <span style="color:${color};font-weight:700;">${glacier}</span></div>` : ''}
+            </div>
+          `;
+          popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+        }
+      });
+
+      map.on('mouseleave', 'sub-basins-fill', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      console.log(`✓ Sub-Basins loaded (${features.length} features from /umairdata)`);
+    } catch (e) {
+      console.warn('Could not load Sub-Basins:', e.message);
+    }
+  }, []);
+
   // Setup River Tributaries (fetch from public GeoJSON)
   const setupRiverTributaries = useCallback(async (map) => {
     if (!map.getSource('river-tributaries')) {
@@ -245,7 +362,7 @@ const MapContainer = () => {
           source: 'river-tributaries',
           layout: { visibility: 'none', 'line-join': 'round', 'line-cap': 'round' },
           paint: {
-            'line-color': '#00BFFF',
+            'line-color': '#00008B',
             'line-width': 1.5,
             'line-opacity': 0.8,
           },
@@ -1229,6 +1346,7 @@ const MapContainer = () => {
       'rivers': ['rivers-layer', 'rivers-labels'],
       'riverTributaries': ['river-tributaries-layer', 'river-tributaries-labels'],
       'riverBasins': ['river-basins-fill', 'river-basins-outline'],
+      'subBasins': ['sub-basins-fill', 'sub-basins-outline', 'sub-basins-labels'],
       'floodExtent': ['floodextend-layer', 'floodextend-outline'],
       'mainCanals': ['main-canals-layer', 'main-canals-labels'],
       'branchCanals': ['branch-canals-layer', 'branch-canals-labels'],
@@ -1295,6 +1413,12 @@ const MapContainer = () => {
       if (layerId === 'distributaryCanals') {
         await setupDistributaryCanals(map);
         loadedLayersCache.add('distributaryCanals');
+      }
+
+      // Sub-Basins layer
+      if (layerId === 'subBasins') {
+        await setupSubBasins(map);
+        loadedLayersCache.add('subBasins');
       }
 
       // Monsoon Basin layer
@@ -1413,7 +1537,7 @@ const MapContainer = () => {
     if (layerId === 'wapdaProposed' && visible) {
       map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupMonsoonBasin, setupMonsoonBasin2, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -1509,6 +1633,7 @@ const MapContainer = () => {
       'rivers': ['rivers-layer', 'rivers-labels'],
       'riverTributaries': ['river-tributaries-layer', 'river-tributaries-labels'],
       'riverBasins': ['river-basins-fill', 'river-basins-outline'],
+      'subBasins': ['sub-basins-fill', 'sub-basins-outline', 'sub-basins-labels'],
       'floodExtent': ['floodextend-layer', 'floodextend-outline'],
       'mainCanals': ['main-canals-layer', 'main-canals-labels'],
       'branchCanals': ['branch-canals-layer', 'branch-canals-labels'],
@@ -1602,11 +1727,24 @@ const MapContainer = () => {
       <InflowsCompModal />
       <MonthlyInflowsModal />
       <ProjectionsModal />
+      <SubBasinsModal />
+      <DamLevelsModal />
       <div id="map-modal-portal" />
 
       {activeLayerOrder.length >= 2 && (
-        <div className="layer-order-panel">
-          <div className="layer-order-panel-header">
+        <motion.div
+          className="layer-order-panel"
+          drag
+          dragControls={layerOrderDragControls}
+          dragListener={false}
+          dragMomentum={false}
+          dragElastic={0}
+        >
+          <div
+            className="layer-order-panel-header"
+            onPointerDown={(e) => layerOrderDragControls.start(e)}
+            style={{ cursor: 'grab', touchAction: 'none' }}
+          >
             <i className="fas fa-layer-group"></i>
             <span>Layer Order</span>
           </div>
@@ -1638,7 +1776,7 @@ const MapContainer = () => {
               );
             })}
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

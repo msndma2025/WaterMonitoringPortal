@@ -1,0 +1,113 @@
+.dl-modal {
+  min-width: 560px;
+  max-width: 640px;
+}
+
+.dl-body {
+  padding: 0.6rem 0.8rem 0.9rem;
+  background: radial-gradient(120% 120% at 50% 0%, #0d1b2e 0%, #080f1c 100%);
+}
+
+.dl-body-full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dl-fullscreen-inner {
+  width: 88vw;
+  max-width: 1100px;
+}
+
+.dl-subtitle {
+  color: #7dd3fc;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.5rem 0.4rem;
+  opacity: 0.85;
+}
+
+/* ── Series toggle chips ── */
+.dl-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.55rem 0.4rem;
+}
+
+.dl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(15, 39, 68, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+  user-select: none;
+}
+
+.dl-chip:hover { background: rgba(15, 39, 68, 0.9); }
+
+.dl-chip-off {
+  color: #64748b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  opacity: 0.65;
+}
+
+.dl-chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+/* ── Custom tooltip ── */
+.dl-tooltip {
+  background: rgba(8, 15, 28, 0.95);
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.dl-tooltip-title {
+  color: #e0f2fe;
+  font-weight: 700;
+  font-size: 0.78rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  padding-bottom: 0.25rem;
+}
+
+.dl-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  padding: 0.1rem 0;
+}
+
+.dl-tooltip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dl-tooltip-name {
+  color: #cbd5e1;
+  min-width: 62px;
+}
+
+.dl-tooltip-val {
+  font-weight: 700;
+  margin-left: auto;
+}

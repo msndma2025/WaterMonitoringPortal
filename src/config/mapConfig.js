@@ -116,6 +116,7 @@ export const LAYER_GROUPS = {
       { id: 'rivers', label: 'Major Rivers', defaultVisible: false },
       { id: 'riverTributaries', label: 'River Tributaries', defaultVisible: false },
       { id: 'riverBasins', label: 'Catchment Basins', defaultVisible: false },
+      { id: 'subBasins', label: 'Sub-Basins', defaultVisible: false },
     ],
   },
   dams: {
@@ -128,6 +129,7 @@ export const LAYER_GROUPS = {
       { id: 'futureDams', label: 'Future Dams', defaultVisible: false },
       { id: 'indianDams', label: 'Indian Dams', defaultVisible: false },
       { id: 'wapdaProposed', label: 'Wapda Proposed', defaultVisible: false },
+      { id: 'damLevels', label: 'Dam Levels', defaultVisible: false },
     ],
   },
   waterVariables: {

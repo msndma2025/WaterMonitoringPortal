@@ -5,67 +5,51 @@ import { useMapStore } from '../../store/mapStore';
 import './InflowsCompModal.css';
 
 const ROWS = [
-  { month: 'January',   y2025: 4.0,  y2026: 3.0  },
-  { month: 'February',  y2025: 4.0,  y2026: 4.0  },
-  { month: 'March',     y2025: 5.0,  y2026: 6.0  },
-  { month: 'April',     y2025: 9.0,  y2026: 11.5 },
-  { month: 'May',       y2025: 10.5, y2026: 10.7 },
-  { month: 'June',      y2025: 18.0, y2026: 16.0 },
-  { month: 'July',      y2025: 27.0, y2026: 25.0 },
-  { month: 'August',    y2025: 28.0, y2026: 22.0 },
-  { month: 'September', y2025: 29.4, y2026: 19.0 },
-  { month: 'October',   y2025: 4.5,  y2026: 7.0  },
-  { month: 'November',  y2025: 4.0,  y2026: 6.0  },
-  { month: 'December',  y2025: 3.6,  y2026: 5.0  },
+  { basin: 'Gilgit–Hunza',      share: '26%', maf: '17.55 MAF' },
+  { basin: 'Shigar',            share: '9%',  maf: '6.08 MAF'  },
+  { basin: 'Shyok',             share: '16%', maf: '10.80 MAF' },
+  { basin: 'Astore',            share: '6%',  maf: '4.05 MAF'  },
+  { basin: 'Upper Indus',       share: '23%', maf: '15.52 MAF' },
+  { basin: 'Lower UIB Residual', share: '20%', maf: '13.50 MAF' },
 ];
-
-const ChangeCell = ({ y2025, y2026 }) => {
-  const diff = Number((y2026 - y2025).toFixed(1));
-  const color = diff > 0 ? '#22c55e' : diff < 0 ? '#ef4444' : '#9ca3af';
-  const arrow = diff > 0 ? 'fa-arrow-up' : diff < 0 ? 'fa-arrow-down' : 'fa-minus';
-  const sign = diff > 0 ? '+' : '';
-  return (
-    <td className="ic-td ic-td-change" style={{ color, fontWeight: 700 }}>
-      {sign}{diff.toFixed(1)} <i className={`fas ${arrow}`} style={{ marginLeft: 4 }} />
-    </td>
-  );
-};
 
 const TableBody = () => (
   <>
     <thead>
       <tr>
-        <th className="ic-th ic-th-month">Month</th>
-        <th className="ic-th ic-th-year">2025 Inflow (MAF)</th>
-        <th className="ic-th ic-th-year">2026 Inflow (MAF)</th>
-        <th className="ic-th ic-th-change">Change (MAF)</th>
+        <th className="ic-th ic-th-month">Sub basins</th>
+        <th className="ic-th ic-th-year">Share</th>
+        <th className="ic-th ic-th-year">Value in MAF</th>
       </tr>
     </thead>
     <tbody>
       {ROWS.map((r, i) => (
-        <tr key={r.month} className={i % 2 === 0 ? 'ic-row-dark' : 'ic-row-black'}>
-          <td className="ic-td ic-td-month">{r.month}</td>
-          <td className="ic-td">{r.y2025}</td>
-          <td className="ic-td">{r.y2026}</td>
-          <ChangeCell y2025={r.y2025} y2026={r.y2026} />
+        <tr key={r.basin} className={i % 2 === 0 ? 'ic-row-dark' : 'ic-row-black'}>
+          <td className="ic-td ic-td-month">{r.basin}</td>
+          <td className="ic-td">{r.share}</td>
+          <td className="ic-td">{r.maf}</td>
         </tr>
       ))}
       <tr className="ic-row-total">
-        <td className="ic-td ic-td-month ic-td-total-label">Total Inflow at RIMs</td>
-        <td className="ic-td ic-td-total-val">145 – 149</td>
-        <td className="ic-td ic-td-total-val">135 – 137</td>
-        <td className="ic-td ic-td-total-val ic-td-change" style={{ color: '#ef4444', fontWeight: 700 }}>
-          -11 <span style={{ color: '#9ca3af', fontWeight: 500, fontSize: '0.85em' }}>Lower in 2026</span>
-        </td>
+        <td className="ic-td ic-td-month ic-td-total-label">Total Indus</td>
+        <td className="ic-td ic-td-total-val">100%</td>
+        <td className="ic-td ic-td-total-val">65 – 70 MAF</td>
       </tr>
     </tbody>
   </>
 );
 
-const InflowsCompModal = () => {
-  const { showInflowsCompModal, setShowInflowsCompModal } = useMapStore();
+const SubBasinsModal = () => {
+  const { layerVisibility } = useMapStore();
+  const subBasinsOn = layerVisibility.subBasins;
   const [isMaximized, setIsMaximized] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const dragControls = useDragControls();
+
+  // Reset the dismissed state each time the layer is (re)enabled
+  useEffect(() => {
+    if (subBasinsOn) setDismissed(false);
+  }, [subBasinsOn]);
 
   useEffect(() => {
     if (!isMaximized) return;
@@ -74,18 +58,20 @@ const InflowsCompModal = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [isMaximized]);
 
+  const open = subBasinsOn && !dismissed;
+
   const header = (maximized) => (
     <div
       className="ic-header"
       onPointerDown={!maximized ? (e) => dragControls.start(e) : undefined}
       style={{ cursor: maximized ? 'default' : 'grab' }}
     >
-      <span className="ic-title">Water Inflows 2025 – 2026</span>
+      <span className="ic-title">Indus Sub-Basins — Share of Inflows</span>
       <div className="ic-header-btns">
         <button className="ic-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
-        <button className="ic-icon-btn" onClick={() => { setShowInflowsCompModal(false); setIsMaximized(false); }}>
+        <button className="ic-icon-btn" onClick={() => { setDismissed(true); setIsMaximized(false); }}>
           <i className="fas fa-times" />
         </button>
       </div>
@@ -96,9 +82,9 @@ const InflowsCompModal = () => {
     <>
       {createPortal(
         <AnimatePresence>
-          {showInflowsCompModal && !isMaximized && (
+          {open && !isMaximized && (
             <motion.div
-              className="ic-modal ic-modal-wide"
+              className="ic-modal"
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -120,7 +106,7 @@ const InflowsCompModal = () => {
 
       {createPortal(
         <AnimatePresence>
-          {showInflowsCompModal && isMaximized && (
+          {open && isMaximized && (
             <motion.div
               className="ic-fullscreen"
               initial={{ opacity: 0 }}
@@ -143,4 +129,4 @@ const InflowsCompModal = () => {
   );
 };
 
-export default InflowsCompModal;
+export default SubBasinsModal;

@@ -6,15 +6,15 @@ import './InflowsCompModal.css';
 import './MonthlyInflowsModal.css';
 
 const ROWS = [
-  { month: 'January',   y2025: 4.0,  y2026: 3.0,  y2027: 5.0,  logic: 'Stronger western disturbance / winter baseflow' },
-  { month: 'February',  y2025: 4.0,  y2026: 4.0,  y2027: 5.8,  logic: 'Continued WD influence and snowfall contribution' },
-  { month: 'March',     y2025: 5.0,  y2026: 6.0,  y2027: 8.0,  logic: 'Snowpack buildup + early warming signal' },
-  { month: 'April',     y2025: 9.0,  y2026: 11.5, y2027: 14.0, logic: 'Early melt begins from above-average snowpack' },
-  { month: 'May',       y2025: 10.5, y2026: 10.7, y2027: 13.5, logic: 'Accelerated snowmelt' },
-  { month: 'June',      y2025: 18.0, y2026: 16.0, y2027: 18.7, logic: 'High melt, but limited pre-monsoon rain' },
+  { month: 'January',   y2025: 4.0,  y2026: 3.0,  y2027: 4.0,  logic: 'Stronger western disturbance / winter baseflow' },
+  { month: 'February',  y2025: 4.0,  y2026: 4.0,  y2027: 4.8,  logic: 'Continued WD influence and snowfall contribution' },
+  { month: 'March',     y2025: 5.0,  y2026: 6.0,  y2027: 7.0,  logic: 'Snowpack buildup + early warming signal' },
+  { month: 'April',     y2025: 9.0,  y2026: 11.5, y2027: 12.0, logic: 'Early melt begins from above-average snowpack' },
+  { month: 'May',       y2025: 10.5, y2026: 10.7, y2027: 11.5, logic: 'Accelerated snowmelt' },
+  { month: 'June',      y2025: 18.0, y2026: 16.0, y2027: 15.7, logic: 'High melt, but limited pre-monsoon rain' },
   { month: 'July',      y2025: 27.0, y2026: 25.0, y2027: 25.0, logic: 'Melt remains strong, monsoon starts suppressed' },
-  { month: 'August',    y2025: 28.0, y2026: 22.0, y2027: 18.0, logic: 'El Nino suppresses core monsoon rainfall' },
-  { month: 'September', y2025: 29.4, y2026: 19.0, y2027: 15.0, logic: 'Weak monsoon tail, reduced rainfall contribution' },
+  { month: 'August',    y2025: 28.0, y2026: 22.0, y2027: 21.0, logic: 'El Nino suppresses core monsoon rainfall' },
+  { month: 'September', y2025: 29.4, y2026: 19.0, y2027: 18.0, logic: 'Weak monsoon tail, reduced rainfall contribution' },
   { month: 'October',   y2025: 4.5,  y2026: 7.0,  y2027: 5.4,  logic: 'Recession flow; lower post-monsoon support' },
   { month: 'November',  y2025: 4.0,  y2026: 6.0,  y2027: 4.5,  logic: 'Limited late-year WD contribution' },
   { month: 'December',  y2025: 3.6,  y2026: 5.0,  y2027: 4.1,  logic: 'Low winter baseflow, slight WD support' },
@@ -28,7 +28,6 @@ const TableBody = () => (
         <th className="ic-th ic-th-year">2025 Inflow</th>
         <th className="ic-th ic-th-year">2026 Inflow</th>
         <th className="ic-th ic-th-year mi-th-2027">2027 Projected Inflow</th>
-        <th className="ic-th mi-th-logic">Projection logic</th>
       </tr>
     </thead>
     <tbody>
@@ -38,15 +37,13 @@ const TableBody = () => (
           <td className="ic-td">{r.y2025.toFixed(1)}</td>
           <td className="ic-td">{r.y2026.toFixed(1)}</td>
           <td className="ic-td mi-td-2027">{r.y2027.toFixed(1)}</td>
-          <td className="ic-td mi-td-logic">{r.logic}</td>
         </tr>
       ))}
       <tr className="ic-row-total">
         <td className="ic-td ic-td-month ic-td-total-label">Total inflow at RIMs</td>
         <td className="ic-td ic-td-total-val">145 – 149</td>
         <td className="ic-td ic-td-total-val">135 – 137</td>
-        <td className="ic-td ic-td-total-val mi-td-2027">134 – 140 MAF</td>
-        <td className="ic-td mi-td-logic">Within projected 134–140 MAF range</td>
+        <td className="ic-td ic-td-total-val mi-td-2027">133 – 136 MAF</td>
       </tr>
     </tbody>
   </>

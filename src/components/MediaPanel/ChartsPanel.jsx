@@ -133,9 +133,9 @@ const ChartsPanel = () => {
       (r) => r['Month'] && r['Month'] !== 'Total Inflow at RIMs',
     );
     const projected2027 = {
-      January: 5.0, February: 5.8, March: 8.0, April: 14.0,
-      May: 13.5, June: 18.7, July: 25.0, August: 18.0,
-      September: 15.0, October: 5.4, November: 4.5, December: 4.1,
+      January: 4.0, February: 4.8, March: 7.0, April: 12.0,
+      May: 11.5, June: 15.7, July: 25.0, August: 21.0,
+      September: 18.0, October: 5.4, November: 4.5, December: 4.1,
     };
     return {
       years: rows.map((r) => r['Month']),

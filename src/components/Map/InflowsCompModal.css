@@ -70,6 +70,11 @@
 
 .ic-th-month { text-align: left; padding-left: 0.8rem; min-width: 110px; }
 .ic-th-year  { min-width: 130px; }
+.ic-th-change { min-width: 120px; }
+.ic-td-change { white-space: nowrap; }
+
+/* Wider variant for tables with the extra Change column */
+.ic-modal-wide { max-width: 600px; }
 
 .ic-row-dark  { background: #0d1b2e; }
 .ic-row-black { background: #080f1c; }

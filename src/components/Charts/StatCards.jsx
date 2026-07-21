@@ -7,7 +7,7 @@ const STATS = [
   {
     id: 'totalStorage',
     label: ['River Inflows'],
-    value: '140–142',
+    value: '135–137',
     unit: 'MAF',
     change: +2.3,
     icon: 'fa-solid fa-water',
@@ -55,7 +55,7 @@ const STATS = [
   {
     id: 'netNationalWater',
     label: ['Net National', 'Water'],
-    value: 236,
+    value: 229,
     unit: 'MAF',
     change: +7.0,
     icon: 'fa-solid fa-faucet-drip',
