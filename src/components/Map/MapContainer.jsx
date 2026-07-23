@@ -1062,7 +1062,7 @@ const MapContainer = () => {
   // Setup Monsoon Basin layer (local GeoJSON - points, classified by Priority)
   const setupMonsoonBasin = useCallback(async (map) => {
     try {
-      const resp = await fetch('/final_300_points.geojson');
+      const resp = await fetch('/Final%20sites%20along%20the%20river.geojson');
       if (resp.ok) {
         const geojson = await resp.json();
         if (!map.getSource('monsoon-basin-source')) {
@@ -1120,26 +1120,59 @@ const MapContainer = () => {
             `;
           };
 
-          // Hover tooltip showing the feature attributes
-          const popup = new mapboxgl.Popup({
+          // Temporary hover tooltip
+          const hoverPopup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false,
             className: 'basin-tooltip',
             maxWidth: '260px',
           });
+          // Pinned tooltip that stays until closed / clicked out
+          const pinnedPopup = new mapboxgl.Popup({
+            closeButton: true,
+            closeOnClick: false,
+            className: 'basin-tooltip',
+            maxWidth: '260px',
+          });
+          let isPinned = false;
+          pinnedPopup.on('close', () => { isPinned = false; });
 
           map.on('mousemove', 'monsoon-basin-layer', (e) => {
             if (e.features && e.features.length > 0) {
               map.getCanvas().style.cursor = 'pointer';
-              popup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+              if (!isPinned) {
+                hoverPopup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+              }
             }
           });
           map.on('mouseleave', 'monsoon-basin-layer', () => {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            hoverPopup.remove();
           });
 
-          console.log('\u2713 Monsoon Basin (final_300_points) layer loaded');
+          // Click a point to pin its tooltip open
+          map.on('click', 'monsoon-basin-layer', (e) => {
+            if (e.features && e.features.length > 0) {
+              hoverPopup.remove();
+              isPinned = true;
+              pinnedPopup
+                .setLngLat(e.lngLat)
+                .setHTML(buildHtml(e.features[0].properties))
+                .addTo(map);
+            }
+          });
+
+          // Clicking anywhere that is not a monsoon-basin point closes the pinned tooltip
+          map.on('click', (e) => {
+            if (!isPinned) return;
+            const hits = map.queryRenderedFeatures(e.point, { layers: ['monsoon-basin-layer'] });
+            if (!hits.length) {
+              pinnedPopup.remove();
+              isPinned = false;
+            }
+          });
+
+          console.log('\u2713 Monsoon Basin (Final sites along the river) layer loaded');
         }
       }
     } catch (e) {
@@ -1150,7 +1183,7 @@ const MapContainer = () => {
   // Setup Monsoon Basin 2 layer (local GeoJSON - points)
   const setupMonsoonBasin2 = useCallback(async (map) => {
     try {
-      const resp = await fetch('/Monsoon_Basin2.geojson');
+      const resp = await fetch('/all%20sites%20final.geojson');
       if (resp.ok) {
         const geojson = await resp.json();
         if (!map.getSource('monsoon-basin2-source')) {
@@ -1240,6 +1273,81 @@ const MapContainer = () => {
       }
     } catch (e) {
       console.warn('Could not load Monsoon Basin 2:', e.message);
+    }
+  }, []);
+
+  // Setup Site Locations layer (local GeoJSON - polygons)
+  const setupSiteLocations = useCallback(async (map) => {
+    if (map.getSource('site-locations-source')) return;
+    try {
+      const resp = await fetch('/Polygon%20sites.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch Polygon sites.geojson: ${resp.status}`);
+      const geojson = await resp.json();
+
+      // Number the sites and compute a rough centroid for each (for the tooltip)
+      (geojson.features || []).forEach((f, i) => {
+        f.properties = f.properties || {};
+        f.properties.siteIndex = i + 1;
+        try {
+          const ring = f.geometry.type === 'MultiPolygon'
+            ? f.geometry.coordinates[0][0]
+            : f.geometry.coordinates[0];
+          let sx = 0, sy = 0;
+          ring.forEach((c) => { sx += c[0]; sy += c[1]; });
+          f.properties.cLng = sx / ring.length;
+          f.properties.cLat = sy / ring.length;
+        } catch { /* ignore malformed geometry */ }
+      });
+
+      map.addSource('site-locations-source', { type: 'geojson', data: geojson });
+
+      map.addLayer({
+        id: 'site-locations-fill',
+        type: 'fill',
+        source: 'site-locations-source',
+        layout: { visibility: 'none' },
+        paint: { 'fill-color': '#f43f5e', 'fill-opacity': 0.35 },
+      });
+
+      map.addLayer({
+        id: 'site-locations-outline',
+        type: 'line',
+        source: 'site-locations-source',
+        layout: { visibility: 'none' },
+        paint: { 'line-color': '#f43f5e', 'line-width': 2 },
+      });
+
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: 'basin-tooltip',
+        maxWidth: '240px',
+      });
+
+      map.on('mousemove', 'site-locations-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          map.getCanvas().style.cursor = 'pointer';
+          const p = e.features[0].properties;
+          const coords = (p.cLat != null && p.cLng != null)
+            ? `<div><span style="color:#8899aa;">Lat, Lng:</span> ${Number(p.cLat).toFixed(4)}, ${Number(p.cLng).toFixed(4)}</div>`
+            : '';
+          const html = `
+            <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
+              <div style="font-weight:700;color:#fb7185;font-size:14px;margin-bottom:4px;">Site Location ${p.siteIndex ?? ''}</div>
+              ${coords}
+            </div>
+          `;
+          popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+        }
+      });
+      map.on('mouseleave', 'site-locations-fill', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      console.log(`✓ Site Locations loaded (${(geojson.features || []).length} polygons)`);
+    } catch (e) {
+      console.warn('Could not load Site Locations:', e.message);
     }
   }, []);
 
@@ -1353,6 +1461,7 @@ const MapContainer = () => {
       'distributaryCanals': ['distributary-canals-layer', 'distributary-canals-labels'],
       'monsoonBasin': 'monsoon-basin-layer',
       'monsoonBasin2': 'monsoon-basin2-layer',
+      'siteLocations': ['site-locations-fill', 'site-locations-outline'],
       'wapdaProposed': 'wapda-proposed-layer',
       'industries': 'industries-layer',
       'indus': 'indus-layer',
@@ -1431,6 +1540,12 @@ const MapContainer = () => {
       if (layerId === 'monsoonBasin2') {
         await setupMonsoonBasin2(map);
         loadedLayersCache.add('monsoonBasin2');
+      }
+
+      // Site Locations layer (polygons)
+      if (layerId === 'siteLocations') {
+        await setupSiteLocations(map);
+        loadedLayersCache.add('siteLocations');
       }
 
       // Wapda Proposed layer (single point)
@@ -1537,7 +1652,7 @@ const MapContainer = () => {
     if (layerId === 'wapdaProposed' && visible) {
       map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;

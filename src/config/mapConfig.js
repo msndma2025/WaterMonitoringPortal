@@ -143,6 +143,7 @@ export const LAYER_GROUPS = {
       { id: 'groundwater', label: 'Ground Water', defaultVisible: false, isLink: true, href: 'https://lookerstudio.google.com/u/0/reporting/77819a68-5bd9-40bd-89b8-34d3ed6d410d/page/p_gglvdfgjsd' },
       { id: 'monsoonBasin', label: 'Monsoon Basin', defaultVisible: false },
       { id: 'monsoonBasin2', label: 'Accumulation Points', defaultVisible: false },
+      { id: 'siteLocations', label: 'Site Locations', defaultVisible: false },
       { id: 'seaSurface', label: 'Sea Surface Temperature', defaultVisible: false },
       { id: 'floodExtent', label: 'Flood Extend 2025', defaultVisible: false },
       { id: 'baselineKarachi', label: 'Baseline Karachi', defaultVisible: false },
