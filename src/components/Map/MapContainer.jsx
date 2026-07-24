@@ -29,12 +29,14 @@ import MapControls from './MapControls';
 import StorageComparison from './StorageComparison';
 import TimeSeriesController from './TimeSeriesController';
 import PriorityLegend from './PriorityLegend';
+import HillTorrentsLegend from './HillTorrentsLegend';
 import CatchmentInflowsModal from './CatchmentInflowsModal';
 import LossesModal from './LossesModal';
 import InflowsCompModal from './InflowsCompModal';
 import MonthlyInflowsModal from './MonthlyInflowsModal';
 import SubBasinsModal from './SubBasinsModal';
 import DamLevelsModal from './DamLevelsModal';
+import IndDomModal from './IndDomModal';
 import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
@@ -1351,6 +1353,118 @@ const MapContainer = () => {
     }
   }, []);
 
+  // Setup Hill Torrents layer (multiple local GeoJSON polygons)
+  // Names/colours must stay in sync with HillTorrentsLegend.jsx
+  const setupHillTorrents = useCallback(async (map) => {
+    if (map.getSource('hill-torrents-source')) return;
+    const TORRENTS = [
+      { file: 'DI_Khan1_torrent', name: 'D.I. Khan 1',   color: '#f97316' },
+      { file: 'DI_Khan2_torrent', name: 'D.I. Khan 2',   color: '#eab308' },
+      { file: 'Kirther_range',    name: 'Kirthar Range', color: '#a855f7' },
+      { file: 'Sindh_Torrent',    name: 'Sindh Torrent', color: '#ec4899' },
+    ];
+    try {
+      const features = [];
+      await Promise.all(TORRENTS.map(async (t) => {
+        const resp = await fetch(`/hill_torrents/${t.file}.geojson`);
+        if (!resp.ok) {
+          console.warn(`Could not load hill torrent ${t.file}: ${resp.status}`);
+          return;
+        }
+        const geojson = await resp.json();
+        (geojson.features || []).forEach((f) => {
+          features.push({
+            ...f,
+            properties: { ...f.properties, htName: t.name, htColor: t.color },
+          });
+        });
+      }));
+
+      map.addSource('hill-torrents-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features },
+      });
+
+      map.addLayer({
+        id: 'hill-torrents-fill',
+        type: 'fill',
+        source: 'hill-torrents-source',
+        layout: { visibility: 'none' },
+        paint: { 'fill-color': ['get', 'htColor'], 'fill-opacity': 0.4 },
+      });
+
+      map.addLayer({
+        id: 'hill-torrents-outline',
+        type: 'line',
+        source: 'hill-torrents-source',
+        layout: { visibility: 'none' },
+        paint: { 'line-color': ['get', 'htColor'], 'line-width': 1.5 },
+      });
+
+      const buildHtml = (p) => {
+        const color = p.htColor || '#38bdf8';
+        return `
+          <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;">
+            <strong style="font-size:14px;color:${color};">${p.htName || 'Hill Torrent'}</strong>
+          </div>
+        `;
+      };
+
+      // Temporary hover tooltip
+      const hoverPopup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        className: 'basin-tooltip',
+        maxWidth: '220px',
+      });
+      // Pinned tooltip that stays until closed / clicked out
+      const pinnedPopup = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: false,
+        className: 'basin-tooltip',
+        maxWidth: '220px',
+      });
+      let isPinned = false;
+      pinnedPopup.on('close', () => { isPinned = false; });
+
+      map.on('mousemove', 'hill-torrents-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          map.getCanvas().style.cursor = 'pointer';
+          if (!isPinned) {
+            hoverPopup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+          }
+        }
+      });
+      map.on('mouseleave', 'hill-torrents-fill', () => {
+        map.getCanvas().style.cursor = '';
+        hoverPopup.remove();
+      });
+
+      // Click a polygon to pin its tooltip open
+      map.on('click', 'hill-torrents-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          hoverPopup.remove();
+          isPinned = true;
+          pinnedPopup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+        }
+      });
+
+      // Clicking anywhere that is not a hill-torrent polygon closes the pinned tooltip
+      map.on('click', (e) => {
+        if (!isPinned) return;
+        const hits = map.queryRenderedFeatures(e.point, { layers: ['hill-torrents-fill'] });
+        if (!hits.length) {
+          pinnedPopup.remove();
+          isPinned = false;
+        }
+      });
+
+      console.log(`✓ Hill Torrents loaded (${features.length} polygons)`);
+    } catch (e) {
+      console.warn('Could not load Hill Torrents:', e.message);
+    }
+  }, []);
+
   // Setup Wapda Proposed layer (single fixed point - Sindh Barrage)
   const setupWapdaProposed = useCallback((map) => {
     const coordinates = [67.80059265, 24.358980]; // [lng, lat]
@@ -1462,6 +1576,7 @@ const MapContainer = () => {
       'monsoonBasin': 'monsoon-basin-layer',
       'monsoonBasin2': 'monsoon-basin2-layer',
       'siteLocations': ['site-locations-fill', 'site-locations-outline'],
+      'hillTorrents': ['hill-torrents-fill', 'hill-torrents-outline'],
       'wapdaProposed': 'wapda-proposed-layer',
       'industries': 'industries-layer',
       'indus': 'indus-layer',
@@ -1546,6 +1661,12 @@ const MapContainer = () => {
       if (layerId === 'siteLocations') {
         await setupSiteLocations(map);
         loadedLayersCache.add('siteLocations');
+      }
+
+      // Hill Torrents layer (polygons)
+      if (layerId === 'hillTorrents') {
+        await setupHillTorrents(map);
+        loadedLayersCache.add('hillTorrents');
       }
 
       // Wapda Proposed layer (single point)
@@ -1652,7 +1773,7 @@ const MapContainer = () => {
     if (layerId === 'wapdaProposed' && visible) {
       map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupHillTorrents, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -1819,6 +1940,7 @@ const MapContainer = () => {
       <div ref={mapContainerRef} className="map-canvas" />
       <MapControls />
       <PriorityLegend />
+      <HillTorrentsLegend />
       <StorageComparison />
       <TimeSeriesController 
         type="evapotranspiration" 
@@ -1842,6 +1964,7 @@ const MapContainer = () => {
       <InflowsCompModal />
       <MonthlyInflowsModal />
       <ProjectionsModal />
+      <IndDomModal />
       <SubBasinsModal />
       <DamLevelsModal />
       <div id="map-modal-portal" />

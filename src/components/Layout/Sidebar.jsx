@@ -8,7 +8,7 @@ import FontSizeControl from '../Map/FontSizeControl';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, sidebarFontScale } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, setShowIndDomModal, sidebarFontScale } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
 
   const sidebarVariants = {
@@ -111,6 +111,16 @@ const Sidebar = ({ isOpen, onClose }) => {
           >
             <i className="fas fa-chart-line"></i>
             <span>Projections 2027–2030</span>
+          </motion.button>
+          <motion.button
+            className="catchment-inflows-btn ind-dom-btn"
+            onClick={() => { setShowIndDomModal(true); onClose(); }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{ marginTop: '0.4rem' }}
+          >
+            <i className="fas fa-industry"></i>
+            <span>Industrial &amp; Domestic Availability</span>
           </motion.button>
         </div>
 

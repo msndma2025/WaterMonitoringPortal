@@ -62,3 +62,7 @@
   left: 20px;
   z-index: 60;
 }
+
+/* Offset the Hill Torrents legend so it can sit alongside the Priority one */
+.hill-torrents-legend { bottom: 150px; }
+.map-section.map-fullscreen .hill-torrents-legend { bottom: 236px; }

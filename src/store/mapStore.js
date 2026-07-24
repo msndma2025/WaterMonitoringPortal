@@ -130,6 +130,10 @@ export const useMapStore = create((set, get) => ({
   showMonthlyInflowsModal: false,
   setShowMonthlyInflowsModal: (v) => set({ showMonthlyInflowsModal: v }),
 
+  // Industrial & Domestic Availability modal
+  showIndDomModal: false,
+  setShowIndDomModal: (v) => set({ showIndDomModal: v }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),
