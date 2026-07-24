@@ -4,10 +4,11 @@ import { LAYER_GROUPS } from '../../config/mapConfig';
 import { useMapStore } from '../../store/mapStore';
 import LayerGroup from './LayerGroup';
 import About from './About';
+import FontSizeControl from '../Map/FontSizeControl';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, sidebarFontScale } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
 
   const sidebarVariants = {
@@ -31,8 +32,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Sidebar */}
-      <motion.aside 
+      <motion.aside
         className="sidebar"
+        style={{ '--sfs': sidebarFontScale }}
         variants={sidebarVariants}
         initial="hidden"
         animate="visible"
@@ -119,7 +121,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <motion.button 
+          <motion.button
             className="about-btn"
             onClick={() => setShowAbout(true)}
             whileHover={{ scale: 1.02 }}
@@ -128,6 +130,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <i className="fas fa-info-circle"></i>
             <span>About</span>
           </motion.button>
+          <FontSizeControl variant="sidebar" />
         </motion.div>
       </motion.aside>
 

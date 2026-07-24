@@ -134,6 +134,18 @@ export const useMapStore = create((set, get) => ({
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),
 
+  // Shared font-size multiplier for the data-table modals (1 = default)
+  tableFontScale: 1.15,
+  setTableFontScale: (v) => set({ tableFontScale: Math.min(2, Math.max(0.8, v)) }),
+  bumpTableFontScale: (delta) =>
+    set((state) => ({ tableFontScale: Math.min(2, Math.max(0.8, +(state.tableFontScale + delta).toFixed(2))) })),
+
+  // Font-size multiplier for the sidebar and its layer dropdowns (1 = default)
+  sidebarFontScale: 1.1,
+  setSidebarFontScale: (v) => set({ sidebarFontScale: Math.min(1.8, Math.max(0.8, v)) }),
+  bumpSidebarFontScale: (delta) =>
+    set((state) => ({ sidebarFontScale: Math.min(1.8, Math.max(0.8, +(state.sidebarFontScale + delta).toFixed(2))) })),
+
   // Loading state
   isLoading: true,
   setIsLoading: (loading) => set({ isLoading: loading }),

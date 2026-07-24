@@ -9,7 +9,7 @@
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(56,189,248,0.1);
   width: max-content;
-  max-width: 920px;
+  max-width: 1060px;
   user-select: none;
 }
 
@@ -55,7 +55,7 @@
 .pm-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.74rem;
+  font-size: calc(0.9rem * var(--fs, 1));
 }
 
 .pm-th {
@@ -81,7 +81,7 @@
   font-weight: 500;
   vertical-align: top;
 }
-.pm-td-year    { color: #ffffff; font-weight: 800; font-size: 0.82rem; background: #0f2744; }
+.pm-td-year    { color: #ffffff; font-weight: 800; font-size: 1.11em; background: #0f2744; }
 .pm-td-inflows { color: #7dd3fc; font-weight: 700; white-space: nowrap; }
 .pm-td-status  { color: #e2e8f0; font-weight: 600; }
 .pm-td-reason  { text-align: left; color: #94a3b8; font-weight: 500; line-height: 1.35; min-width: 230px; max-width: 320px; }
@@ -103,7 +103,7 @@
   border-radius: 12px;
   overflow: hidden;
   width: 94vw;
-  max-width: 1200px;
+  max-width: 1320px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -112,7 +112,7 @@
 
 .pm-table-wrap-full { flex: 1; overflow: auto; }
 
-.pm-table-full { font-size: 0.92rem; }
-.pm-table-full .pm-th { padding: 0.65rem 0.85rem; font-size: 0.92rem; }
-.pm-table-full .pm-td { padding: 0.7rem 0.85rem; font-size: 0.88rem; }
+.pm-table-full { font-size: calc(1.1rem * var(--fs, 1)); }
+.pm-table-full .pm-th { padding: 0.65rem 0.85rem; font-size: 1em; }
+.pm-table-full .pm-td { padding: 0.7rem 0.85rem; font-size: 0.96em; }
 .pm-table-full .pm-td-reason { max-width: 420px; }

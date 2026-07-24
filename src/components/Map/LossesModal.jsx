@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useMapStore } from '../../store/mapStore';
+import FontSizeControl from './FontSizeControl';
 import './LossesModal.css';
 
 const MONTHS = ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -41,7 +42,7 @@ const TableBody = () => (
 );
 
 const LossesModal = () => {
-  const { showLossesModal, setShowLossesModal } = useMapStore();
+  const { showLossesModal, setShowLossesModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
   const dragControls = useDragControls();
 
@@ -60,6 +61,7 @@ const LossesModal = () => {
     >
       <span className="lm-title">Losses (MAF) — 2026</span>
       <div className="lm-header-btns">
+        <FontSizeControl />
         <button className="lm-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -77,6 +79,7 @@ const LossesModal = () => {
           {showLossesModal && !isMaximized && (
             <motion.div
               className="lm-modal"
+              style={{ '--fs': tableFontScale }}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -106,7 +109,7 @@ const LossesModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="lm-fullscreen-inner">
+              <div className="lm-fullscreen-inner" style={{ '--fs': tableFontScale }}>
                 {header(true)}
                 <div className="lm-table-wrap lm-table-wrap-full">
                   <table className="lm-table lm-table-full"><TableBody /></table>

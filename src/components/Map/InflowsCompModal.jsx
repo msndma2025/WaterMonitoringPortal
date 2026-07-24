@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useMapStore } from '../../store/mapStore';
+import FontSizeControl from './FontSizeControl';
 import './InflowsCompModal.css';
 
 const ROWS = [
@@ -63,7 +64,7 @@ const TableBody = () => (
 );
 
 const InflowsCompModal = () => {
-  const { showInflowsCompModal, setShowInflowsCompModal } = useMapStore();
+  const { showInflowsCompModal, setShowInflowsCompModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
   const dragControls = useDragControls();
 
@@ -82,6 +83,7 @@ const InflowsCompModal = () => {
     >
       <span className="ic-title">Water Inflows 2025 – 2026</span>
       <div className="ic-header-btns">
+        <FontSizeControl />
         <button className="ic-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -99,6 +101,7 @@ const InflowsCompModal = () => {
           {showInflowsCompModal && !isMaximized && (
             <motion.div
               className="ic-modal ic-modal-wide"
+              style={{ '--fs': tableFontScale }}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -128,7 +131,7 @@ const InflowsCompModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="ic-fullscreen-inner">
+              <div className="ic-fullscreen-inner" style={{ '--fs': tableFontScale }}>
                 {header(true)}
                 <div className="ic-table-wrap ic-table-wrap-full">
                   <table className="ic-table ic-table-full"><TableBody /></table>

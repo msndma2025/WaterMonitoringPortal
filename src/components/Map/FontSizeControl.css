@@ -1,0 +1,36 @@
+.fsc {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 0.35rem;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  border-radius: 6px;
+  padding: 1px;
+}
+
+.fsc-btn,
+.fsc-val {
+  background: transparent;
+  border: none;
+  color: #bfdbfe;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.22rem 0.4rem;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.fsc-val {
+  min-width: 3.2em;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fsc-btn:hover,
+.fsc-val:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+.fsc-btn:disabled { opacity: 0.35; cursor: default; }
+.fsc-btn:disabled:hover { background: transparent; }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useMapStore } from '../../store/mapStore';
+import FontSizeControl from './FontSizeControl';
 import './CatchmentInflowsModal.css';
 
 const ROWS = [
@@ -44,7 +45,7 @@ const TableBody = () => (
 );
 
 const CatchmentInflowsModal = () => {
-  const { showInflowsModal, setShowInflowsModal } = useMapStore();
+  const { showInflowsModal, setShowInflowsModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
   const dragControls = useDragControls();
 
@@ -63,6 +64,7 @@ const CatchmentInflowsModal = () => {
     >
       <span className="ci-title">Catchment Wise Inflows 2026</span>
       <div className="ci-header-btns">
+        <FontSizeControl />
         <button className="ci-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -80,6 +82,7 @@ const CatchmentInflowsModal = () => {
           {showInflowsModal && !isMaximized && (
             <motion.div
               className="ci-modal"
+              style={{ '--fs': tableFontScale }}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -109,7 +112,7 @@ const CatchmentInflowsModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="ci-fullscreen-inner">
+              <div className="ci-fullscreen-inner" style={{ '--fs': tableFontScale }}>
                 {header(true)}
                 <div className="ci-table-wrap ci-table-wrap-full">
                   <table className="ci-table ci-table-full"><TableBody /></table>

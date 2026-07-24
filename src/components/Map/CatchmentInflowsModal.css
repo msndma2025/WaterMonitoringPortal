@@ -9,7 +9,7 @@
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(56,189,248,0.1);
   min-width: 540px;
-  max-width: 620px;
+  max-width: 780px;
   user-select: none;
 }
 
@@ -55,7 +55,7 @@
 .ci-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.78rem;
+  font-size: calc(0.95rem * var(--fs, 1));
 }
 
 .ci-th {
@@ -67,10 +67,10 @@
   border: 1px solid #1e3a5f;
   white-space: nowrap;
 }
-.ci-th-catchment { font-size: 0.82rem; min-width: 100px; }
-.ci-th-group     { font-size: 0.8rem; }
-.ci-th-sub       { font-size: 0.72rem; font-weight: 600; color: #7dd3fc; background: #091a33; }
-.ci-th-total     { font-size: 0.82rem; min-width: 60px; }
+.ci-th-catchment { font-size: 1.05em; min-width: 100px; }
+.ci-th-group     { font-size: 1.03em; }
+.ci-th-sub       { font-size: 0.92em; font-weight: 600; color: #7dd3fc; background: #091a33; }
+.ci-th-total     { font-size: 1.05em; min-width: 60px; }
 
 .ci-row-dark  { background: #0d1b2e; }
 .ci-row-black { background: #080f1c; }
@@ -88,9 +88,9 @@
   text-align: left;
   padding-left: 0.7rem;
   background: #0f2744;
-  font-size: 0.8rem;
+  font-size: 1.03em;
 }
-.ci-td-total { color: #7dd3fc; font-weight: 700; font-size: 0.82rem; }
+.ci-td-total { color: #7dd3fc; font-weight: 700; font-size: 1.05em; }
 
 /* ── Fullscreen ── */
 .ci-fullscreen {
@@ -109,7 +109,7 @@
   border-radius: 12px;
   overflow: hidden;
   width: 90vw;
-  max-width: 860px;
+  max-width: 960px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -122,10 +122,10 @@
 }
 
 .ci-table-full {
-  font-size: 1rem;
+  font-size: calc(1.2rem * var(--fs, 1));
 }
 
-.ci-table-full .ci-th   { padding: 0.65rem 0.9rem; font-size: 1rem; }
-.ci-table-full .ci-th-sub { font-size: 0.88rem; }
-.ci-table-full .ci-td   { padding: 0.6rem 0.9rem; font-size: 0.95rem; }
-.ci-table-full .ci-td-catchment { font-size: 0.98rem; }
+.ci-table-full .ci-th   { padding: 0.65rem 0.9rem; font-size: 1em; }
+.ci-table-full .ci-th-sub { font-size: 0.88em; }
+.ci-table-full .ci-td   { padding: 0.6rem 0.9rem; font-size: 0.95em; }
+.ci-table-full .ci-td-catchment { font-size: 0.98em; }

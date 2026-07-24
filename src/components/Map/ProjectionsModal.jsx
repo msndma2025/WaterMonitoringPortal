@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useMapStore } from '../../store/mapStore';
+import FontSizeControl from './FontSizeControl';
 import './ProjectionsModal.css';
 
 const ROWS = [
@@ -73,7 +74,7 @@ const TableBody = () => (
 );
 
 const ProjectionsModal = () => {
-  const { showProjectionsModal, setShowProjectionsModal } = useMapStore();
+  const { showProjectionsModal, setShowProjectionsModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
   const dragControls = useDragControls();
 
@@ -92,6 +93,7 @@ const ProjectionsModal = () => {
     >
       <span className="pm-title">Projections 2027 – 2030</span>
       <div className="pm-header-btns">
+        <FontSizeControl />
         <button className="pm-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -109,6 +111,7 @@ const ProjectionsModal = () => {
           {showProjectionsModal && !isMaximized && (
             <motion.div
               className="pm-modal"
+              style={{ '--fs': tableFontScale }}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -138,7 +141,7 @@ const ProjectionsModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="pm-fullscreen-inner">
+              <div className="pm-fullscreen-inner" style={{ '--fs': tableFontScale }}>
                 {header(true)}
                 <div className="pm-table-wrap pm-table-wrap-full">
                   <table className="pm-table pm-table-full"><TableBody /></table>
