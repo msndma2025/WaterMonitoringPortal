@@ -143,19 +143,19 @@ const ChartsPanel = () => {
         {
           id: 'inflow2025',
           name: '2025 Inflow (MAF)',
-          color: '#3b82f6',
+          color: '#4d90ff',
           data: rows.map((r) => num(r['2025 Inflow (MAF)'])),
         },
         {
           id: 'inflow2026',
           name: '2026 Inflow (MAF)',
-          color: '#22c55e',
+          color: '#22e06a',
           data: rows.map((r) => num(r['2026 Inflow (MAF)'])),
         },
         {
           id: 'inflow2027',
           name: '2027 Projected Inflow (MAF)',
-          color: '#ec4899',
+          color: '#ff3d9a',
           data: rows.map((r) => projected2027[r['Month']] ?? null),
         },
       ],

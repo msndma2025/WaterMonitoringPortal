@@ -8,8 +8,19 @@ import FontSizeControl from '../Map/FontSizeControl';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, setShowIndDomModal, sidebarFontScale } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, setShowIndDomModal, setShowAgriModal, sidebarFontScale } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
+  const [reportsOpen, setReportsOpen] = useState(false);
+
+  const reports = [
+    { id: 'catchment',   label: 'Catchment Wise Inflows 2026',      icon: 'fa-table',        open: setShowInflowsModal },
+    { id: 'losses',      label: 'Losses (MAF) 2026',                icon: 'fa-tint-slash',   open: setShowLossesModal },
+    { id: 'inflows',     label: 'Water Inflows 2025–2026',          icon: 'fa-water',        open: setShowInflowsCompModal },
+    { id: 'monthly',     label: 'Monthly Inflows 2025–2027',        icon: 'fa-calendar-alt', open: setShowMonthlyInflowsModal },
+    { id: 'projections', label: 'Projections 2027–2030',            icon: 'fa-chart-line',   open: setShowProjectionsModal },
+    { id: 'inddom',      label: 'Industrial & Domestic Availability', icon: 'fa-industry',   open: setShowIndDomModal },
+    { id: 'agri',        label: 'Demand vs Availability',           icon: 'fa-chart-area',   open: setShowAgriModal },
+  ];
 
   const sidebarVariants = {
     hidden: { x: '-100%', opacity: 0 },
@@ -61,67 +72,43 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </div>
 
-        {/* Catchment Inflows Button */}
+        {/* Reports & Charts dropdown */}
         <div className="sidebar-inflows-btn-wrap">
-          <motion.button
-            className="catchment-inflows-btn"
-            onClick={() => { setShowInflowsModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <i className="fas fa-table"></i>
-            <span>Catchment Wise Inflows 2026</span>
-          </motion.button>
-          <motion.button
-            className="catchment-inflows-btn losses-btn"
-            onClick={() => { setShowLossesModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ marginTop: '0.4rem' }}
-          >
-            <i className="fas fa-tint-slash"></i>
-            <span>Losses (MAF) 2026</span>
-          </motion.button>
-          <motion.button
-            className="catchment-inflows-btn inflows-comp-btn"
-            onClick={() => { setShowInflowsCompModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ marginTop: '0.4rem' }}
-          >
-            <i className="fas fa-water"></i>
-            <span>Water Inflows 2025–2026</span>
-          </motion.button>
-          <motion.button
-            className="catchment-inflows-btn monthly-inflows-btn"
-            onClick={() => { setShowMonthlyInflowsModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ marginTop: '0.4rem' }}
-          >
-            <i className="fas fa-calendar-alt"></i>
-            <span>Monthly Inflows 2025–2027</span>
-          </motion.button>
-          <motion.button
-            className="catchment-inflows-btn projections-btn"
-            onClick={() => { setShowProjectionsModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ marginTop: '0.4rem' }}
-          >
-            <i className="fas fa-chart-line"></i>
-            <span>Projections 2027–2030</span>
-          </motion.button>
-          <motion.button
-            className="catchment-inflows-btn ind-dom-btn"
-            onClick={() => { setShowIndDomModal(true); onClose(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ marginTop: '0.4rem' }}
-          >
-            <i className="fas fa-industry"></i>
-            <span>Industrial &amp; Domestic Availability</span>
-          </motion.button>
+          <div className="reports-group">
+            <button
+              className={`reports-group-header${reportsOpen ? ' open' : ''}`}
+              onClick={() => setReportsOpen((v) => !v)}
+            >
+              <span className="reports-group-icon"><i className="fas fa-folder-open"></i></span>
+              <span className="reports-group-label">Reports &amp; Charts</span>
+              <i className={`fas fa-chevron-down reports-group-arrow${reportsOpen ? ' expanded' : ''}`}></i>
+            </button>
+            <AnimatePresence initial={false}>
+              {reportsOpen && (
+                <motion.div
+                  className="reports-list"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                >
+                  {reports.map((r) => (
+                    <motion.button
+                      key={r.id}
+                      className={`report-btn report-btn-${r.id}`}
+                      onClick={() => { r.open(true); onClose(); }}
+                      whileHover={{ scale: 1.015 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span className="report-btn-icon"><i className={`fas ${r.icon}`}></i></span>
+                      <span className="report-btn-label">{r.label}</span>
+                      <i className="fas fa-chevron-right report-btn-go"></i>
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* About Button at Bottom */}

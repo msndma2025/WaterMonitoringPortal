@@ -3,6 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -102,6 +103,126 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
+
+/* ─────────────────────────────────────────────────────────────
+   Google location search (Places API New) via service account.
+   The service account key stays on the server and is never sent
+   to the browser. The frontend calls /api/search?q=... (proxied).
+   ───────────────────────────────────────────────────────────── */
+const SA_PATH =
+  process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+  path.join(__dirname, '..', 'locationsearch-495818-20ef8870e102.json');
+
+let _serviceAccount = null;
+function loadServiceAccount() {
+  if (_serviceAccount) return _serviceAccount;
+  _serviceAccount = JSON.parse(fs.readFileSync(SA_PATH, 'utf8'));
+  return _serviceAccount;
+}
+
+let _tokenCache = { token: null, exp: 0 };
+async function getAccessToken() {
+  const now = Math.floor(Date.now() / 1000);
+  if (_tokenCache.token && _tokenCache.exp - 60 > now) return _tokenCache.token;
+
+  const sa = loadServiceAccount();
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claim = {
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600,
+  };
+  const unsigned = `${b64(header)}.${b64(claim)}`;
+  const signature = crypto.createSign('RSA-SHA256').update(unsigned).sign(sa.private_key, 'base64url');
+  const jwt = `${unsigned}.${signature}`;
+
+  const resp = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+  const data = await resp.json();
+  if (!data.access_token) throw new Error('OAuth token error: ' + JSON.stringify(data));
+  _tokenCache = { token: data.access_token, exp: now + (data.expires_in || 3600) };
+  return _tokenCache.token;
+}
+
+// As-you-type suggestions via Places Autocomplete (New)
+app.get('/search', async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (q.length < 2) return res.json({ results: [] });
+  try {
+    const sa = loadServiceAccount();
+    const token = await getAccessToken();
+    const resp = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'X-Goog-User-Project': sa.project_id,
+      },
+      body: JSON.stringify({
+        input: q,
+        includedRegionCodes: ['pk'],
+      }),
+    });
+    const data = await resp.json();
+    if (data.error) {
+      console.error('Autocomplete error:', data.error);
+      return res.status(502).json({ error: data.error.message || 'Autocomplete error', results: [] });
+    }
+    const results = (data.suggestions || [])
+      .map((s) => s.placePrediction)
+      .filter(Boolean)
+      .map((p) => ({
+        placeId: p.placeId,
+        name: p.structuredFormat?.mainText?.text || p.text?.text || 'Location',
+        address: p.structuredFormat?.secondaryText?.text || '',
+      }));
+    res.json({ results });
+  } catch (e) {
+    console.error('Search failed:', e.message);
+    res.status(500).json({ error: e.message, results: [] });
+  }
+});
+
+// Resolve a selected suggestion to coordinates via Place Details (New)
+app.get('/place/:id', async (req, res) => {
+  try {
+    const sa = loadServiceAccount();
+    const token = await getAccessToken();
+    const resp = await fetch(
+      'https://places.googleapis.com/v1/places/' + encodeURIComponent(req.params.id),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Goog-User-Project': sa.project_id,
+          'X-Goog-FieldMask': 'location,displayName,formattedAddress',
+        },
+      }
+    );
+    const data = await resp.json();
+    if (data.error) {
+      console.error('Place details error:', data.error);
+      return res.status(502).json({ error: data.error.message });
+    }
+    res.json({
+      name: data.displayName?.text || '',
+      address: data.formattedAddress || '',
+      lat: data.location?.latitude,
+      lng: data.location?.longitude,
+    });
+  } catch (e) {
+    console.error('Place details failed:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // Slides data file
 const slidesDataPath = path.join(__dirname, 'slides.json');

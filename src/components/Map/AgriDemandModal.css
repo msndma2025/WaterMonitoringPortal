@@ -1,0 +1,21 @@
+.agri-v2-modal {
+  min-width: 640px;
+  max-width: 900px;
+  width: min(900px, calc(100vw - 40px));
+}
+
+.agri-v2-body {
+  padding: 0.8rem 1rem 1rem;
+  background: #181818;
+  overflow: auto;
+}
+
+.agri-v2-fullscreen-inner {
+  width: 92vw;
+  max-width: 1400px;
+}
+
+.agri-v2-body-full {
+  flex: 1;
+  overflow: auto;
+}

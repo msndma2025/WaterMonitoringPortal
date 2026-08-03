@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import LocationSearch from '../Map/LocationSearch';
 import './Header.css';
 
 const Header = ({ onMenuToggle }) => {
@@ -58,6 +59,8 @@ const Header = ({ onMenuToggle }) => {
 
         {/* Right: Actions */}
         <div className="header-right">
+          <LocationSearch />
+
           <Link to="/slides" className="header-btn">
             <i className="fas fa-images"></i>
           </Link>

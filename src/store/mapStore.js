@@ -4,11 +4,16 @@ import { LAYER_GROUPS } from '../config/mapConfig';
 // Initialize layer visibility from config
 const initializeLayerVisibility = () => {
   const visibility = {};
-  Object.values(LAYER_GROUPS).forEach((group) => {
-    group.layers.forEach((layer) => {
-      visibility[layer.id] = layer.defaultVisible;
+  const addLayers = (layers) => {
+    layers.forEach((layer) => {
+      if (layer.isGroup && Array.isArray(layer.layers)) {
+        addLayers(layer.layers); // recurse into nested sub-groups
+      } else {
+        visibility[layer.id] = layer.defaultVisible;
+      }
     });
-  });
+  };
+  Object.values(LAYER_GROUPS).forEach((group) => addLayers(group.layers));
   return visibility;
 };
 
@@ -134,9 +139,19 @@ export const useMapStore = create((set, get) => ({
   showIndDomModal: false,
   setShowIndDomModal: (v) => set({ showIndDomModal: v }),
 
+  // Demand vs Availability chart modal (agri + domestic/industrial)
+  showAgriModal: false,
+  setShowAgriModal: (v) => set({ showAgriModal: v }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),
+
+  // Cinematic map tour (Karachi -> Gilgit)
+  isTouring: false,
+  setIsTouring: (v) => set({ isTouring: v }),
+  tourTrigger: 0,
+  triggerTour: () => set((s) => ({ tourTrigger: s.tourTrigger + 1 })),
 
   // Shared font-size multiplier for the data-table modals (1 = default)
   tableFontScale: 1.15,

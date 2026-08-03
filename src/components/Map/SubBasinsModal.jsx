@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useMapStore } from '../../store/mapStore';
+import FontSizeControl from './FontSizeControl';
 import './InflowsCompModal.css';
 
 const ROWS = [
@@ -40,7 +41,7 @@ const TableBody = () => (
 );
 
 const SubBasinsModal = () => {
-  const { layerVisibility } = useMapStore();
+  const { layerVisibility, tableFontScale } = useMapStore();
   const subBasinsOn = layerVisibility.subBasins;
   const [isMaximized, setIsMaximized] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -68,6 +69,7 @@ const SubBasinsModal = () => {
     >
       <span className="ic-title">Indus Sub-Basins — Share of Inflows</span>
       <div className="ic-header-btns">
+        <FontSizeControl />
         <button className="ic-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -85,6 +87,7 @@ const SubBasinsModal = () => {
           {open && !isMaximized && (
             <motion.div
               className="ic-modal"
+              style={{ '--fs': tableFontScale }}
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -114,7 +117,7 @@ const SubBasinsModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="ic-fullscreen-inner">
+              <div className="ic-fullscreen-inner" style={{ '--fs': tableFontScale }}>
                 {header(true)}
                 <div className="ic-table-wrap ic-table-wrap-full">
                   <table className="ic-table ic-table-full"><TableBody /></table>

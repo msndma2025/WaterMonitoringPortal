@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "rawaana-495818",
+  "private_key_id": "20ef8870e1025bc4392f00eae6def3199b47274c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDmj4W0tQzcM4ei\nIPox/xruAUNqNzzjG0KXRXtazyGnzpssXsqtsRFV7XIhIrkIezmE/l7GqHfU0yw/\ns+8ZMFbLiuIdg6r0hkf8uyWT9/Zfp86YgRfT583MnTjBvO+oGo0VsxfdVXT7FrFl\nYPYkqiFZ/NiVU8v0Z1ex23cbEsDw++Z1v5NBtYufnE0hr9G/yXf6o8AZjP4nYdIw\nmnEfORmjo8dDFq2KpwFPuE3+/2UXKWS2fm9mzPFG6c8vNf19aP5GEBahVlOfixhe\n9gjFvsziWSjj5gTanqu9pmmn7aiJypgv3uNEEIsenccLlFwnUGZJl1Ye4yrq/PB0\nZ4HuWGIdAgMBAAECggEAIyYIJSdgwYUdjUrnuY2Bhn0s0NmA78JtIXCXQJ3JLLLj\nlx0QWvBeizH6rzCC8tcOSscYncJ7GjfjTAbbUYS8BqWymPtEqah6+v1w2iD4L1b+\nuOMdRdHV3vas+2QZSRBbJ864uaZYghrQinsAq1BAa16PihxPQIAsr1Gc08TFIzeJ\ns+KqTpLXZj3KIjd3E4V3tiUBG7A9d8oUfyWrEL+hLeBTL2vkO8IlrPggQeMwmD78\nHs5r7a6DdTqh6mNsg2fcr7ThXhmkSeOOZmx5vfsMMykTYJgng0fs/G7OCQqHWnPx\nm/HIJl7edG73f/FL8BfeYjOvoTyXc6sTUKn1uuctoQKBgQD063gQ4gLUa8idUPWv\niZCil6kUxcqdN5m6pFbDGmPIgdaLt1M7Nblo21EW/kkjkFntaEC8B+Ly2MTOGtRt\nVLNmfgnqD+3mNwcygtqaI1AxTf9s4D1i3rYDMSFx+ajahscgvK2fUGRmouHQthT2\n4t4DnBYPhm5/bdhamu6r01xGJQKBgQDw/cDHPhOsiofOqlQRyas1e6lVzibXuXJZ\nkp1a4xHkRbZZgXyVAjuUvIL1dWnce9QyaRsQqWOSW9js9wi0chWMhKwU3f645+Q1\nI1eq8ILLSMfzeJa4MCScCSE0dmvyWIKUvXAkWs4FStWp9DZLyb4xHvZM87grQ664\nPgkVhqe+mQKBgQCLrb7L4hm7C71d+s4jTlEuaVAEiMkE4LDLwO26V1KRB3tUMzlE\ni18ybeHROzR7E9g1jT9d/SFxXi7fXG3J7IRj7323/12t7bQtGnORdJJHjDQf48Me\nn+Ut7NcmKTwjZLor8W8TbMXVww8F+NH7+2aiqGHseL6L7hl1kuaLF/+IAQKBgEcF\nYXTWdJHa2Z8sT05WsqA2a3cgJA5bVrnTHZCVbsZpTQ4fvQlk+Q4iaC3Shno1/BlH\nJHTKls+hRdLAEs6q+HLK/rO/oLv5iyWl3sY/zyv9rP+xwClT9tYNUr3VUIbBUupm\n0c/E+wZQQZuunvnC4Mw1Jb0T7mjBr5IYpjCz2GexAoGAS3GnPXgLm8vzL5WPIF07\nnUA1p1/TaRe1cSsGgA6FX+Q9XFb72K2F3tDQxd1vou/jsNOHu8AARj3sh96HUKdY\n20tXIEIBZwZFAH7TzLVjf418UDYOhVMue45yAGeVY2G/DLgvH0yXRTMTyGD2+cfb\nD/T225+ADPL0T1Yu17blLi8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "waterportallocationsearch@rawaana-495818.iam.gserviceaccount.com",
+  "client_id": "109028239137627792317",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/waterportallocationsearch%40rawaana-495818.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

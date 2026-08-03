@@ -37,6 +37,7 @@ import MonthlyInflowsModal from './MonthlyInflowsModal';
 import SubBasinsModal from './SubBasinsModal';
 import DamLevelsModal from './DamLevelsModal';
 import IndDomModal from './IndDomModal';
+import AgriDemandModal from './AgriDemandModal';
 import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
@@ -52,6 +53,8 @@ const MapContainer = () => {
   const mapInitializedRef = useRef(false);
   const { setMapRef, mapStyle, layerVisibility, activeLayerOrder, reorderLayers, setIsLoading, mapFullscreen, setMapFullscreen } = useMapStore();
   const layerOrderDragControls = useDragControls();
+  const tourTrigger = useMapStore((s) => s.tourTrigger);
+  const tourCancelRef = useRef(false);
 
   // Track current layers to restore after style change
   const activeLayersRef = useRef(new Set());
@@ -1926,14 +1929,85 @@ const MapContainer = () => {
     reorderLayers(newOrder);
   };
 
-  // Flat label lookup
+  // Label lookup (recurses into nested sub-groups)
   const getLayerLabel = (id) => {
+    const search = (layers) => {
+      for (const l of layers) {
+        if (l.isGroup && Array.isArray(l.layers)) {
+          const nested = search(l.layers);
+          if (nested) return nested;
+        } else if (l.id === id) {
+          return l.label;
+        }
+      }
+      return null;
+    };
     for (const group of Object.values(LAYER_GROUPS)) {
-      const found = group.layers.find(l => l.id === id);
-      if (found) return found.label;
+      const found = search(group.layers);
+      if (found) return found;
     }
     return id;
   };
+
+  // Cinematic tour: animate from Karachi to Gilgit on satellite, popping
+  // tooltips of the currently-visible target layers as the camera passes over
+  // their features. The user's own pitch/bearing/zoom are preserved.
+  const runMapTour = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const { isTouring, setIsTouring } = useMapStore.getState();
+
+    // Second trigger stops the tour
+    if (isTouring) {
+      tourCancelRef.current = true;
+      setIsTouring(false);
+      return;
+    }
+
+    const KARACHI = [67.05, 24.90];
+    const GILGIT = [74.35, 35.92];
+    const DURATION = 40000;
+
+    // Move the camera Karachi -> Gilgit while keeping the user's angle/zoom.
+    const flyThrough = () => {
+      // Ease to the Karachi starting point without touching pitch/bearing/zoom
+      map.flyTo({ center: KARACHI, duration: 1200, essential: true });
+      map.once('moveend', () => {
+        if (tourCancelRef.current) return;
+        const startT = performance.now();
+        const step = (now) => {
+          if (tourCancelRef.current) return;
+          const t = Math.min(1, (now - startT) / DURATION);
+          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
+          const lng = KARACHI[0] + (GILGIT[0] - KARACHI[0]) * e;
+          const lat = KARACHI[1] + (GILGIT[1] - KARACHI[1]) * e;
+          map.setCenter([lng, lat]);
+          if (t < 1) {
+            requestAnimationFrame(step);
+          } else {
+            tourCancelRef.current = false;
+            setIsTouring(false);
+          }
+        };
+        requestAnimationFrame(step);
+      });
+    };
+
+    tourCancelRef.current = false;
+    setIsTouring(true);
+
+    // Start immediately at the user's current basemap / zoom / angle
+    flyThrough();
+  }, []);
+
+  // Start/stop the tour whenever the sidebar Play button is pressed
+  const tourTriggerRef = useRef(tourTrigger);
+  useEffect(() => {
+    if (tourTrigger === tourTriggerRef.current) return;
+    tourTriggerRef.current = tourTrigger;
+    runMapTour();
+  }, [tourTrigger, runMapTour]);
 
   return (
     <div className="map-container">
@@ -1965,6 +2039,7 @@ const MapContainer = () => {
       <MonthlyInflowsModal />
       <ProjectionsModal />
       <IndDomModal />
+      <AgriDemandModal />
       <SubBasinsModal />
       <DamLevelsModal />
       <div id="map-modal-portal" />

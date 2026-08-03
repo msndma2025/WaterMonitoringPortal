@@ -1,0 +1,72 @@
+.ic-icon-btn-active {
+  opacity: 1 !important;
+  color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.14) !important;
+}
+
+/* Labeled table/chart toggle button */
+.idc-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid rgba(147, 197, 253, 0.25);
+}
+.idc-toggle-btn span { line-height: 1; }
+
+.idc-chart-wrap {
+  padding: 0.7rem 0.85rem 0.9rem;
+  background: radial-gradient(120% 120% at 50% 0%, #0d1b2e 0%, #080f1c 100%);
+}
+
+.idc-chart-wrap-full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.idc-chart-title {
+  color: #fcd34d;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.5rem 0.4rem;
+  opacity: 0.9;
+}
+
+/* ── Chart tooltip ── */
+.idc-tooltip {
+  background: rgba(8, 15, 28, 0.95);
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  min-width: 150px;
+}
+
+.idc-tooltip-title {
+  color: #e0f2fe;
+  font-weight: 700;
+  font-size: 0.78rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  padding-bottom: 0.25rem;
+}
+
+.idc-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  padding: 0.1rem 0;
+}
+
+.idc-tooltip-total {
+  margin-top: 0.2rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(56, 189, 248, 0.12);
+  color: #fbbf24;
+  font-weight: 700;
+}

@@ -1,0 +1,163 @@
+/* ---- V2 chart styles (ported from WaterChartsHTML App.css) ---- */
+.wdg {
+  --viz-series-1: #83c3ff;
+  --viz-series-2: #f59a56;
+  --viz-series-3: #74d58b;
+  --viz-series-4: #f08fc0;
+  --viz-series-5: #aa91ef;
+  --viz-series-6: #5acbc2;
+
+  --foreground: #ffffff;
+  --muted-foreground: rgb(255 255 255 / 49.8%);
+  --background: #181818;
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --popover: #2d2d2d;
+  --border: rgb(255 255 255 / 8.2%);
+  --ring: rgb(131 195 255 / 76%);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --primary: #83c3ff;
+
+  --font-size-base: 18px;
+  --radius: 10px;
+
+  --wdg-agri: #00ffa3;
+  --wdg-domestic: #ff2d95;
+  --wdg-industrial: #22d3ff;
+  --wdg-total: #ffee00;
+  --wdg-population: #c874ff;
+  --wdg-plot: color-mix(in srgb, var(--card) 86%, var(--background) 14%);
+  --wdg-grid: color-mix(in srgb, var(--border) 72%, transparent);
+  --wdg-selected: color-mix(in srgb, var(--ring) 15%, transparent);
+
+  color: var(--foreground);
+  width: 100%;
+  font-family: -apple-system, system-ui, 'Segoe UI', sans-serif;
+}
+
+/* ---- legend ---- */
+.wdg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+.wdg-legend-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.wdg-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  font-size: 0.82rem;
+}
+.wdg-swatch {
+  width: 0.88rem;
+  height: 0.88rem;
+  display: inline-block;
+}
+.wdg-line-key {
+  width: 1.75rem;
+  display: inline-block;
+  border-top: 0.2rem solid var(--foreground);
+}
+.wdg-demand-key {
+  border-top-style: dashed;
+}
+
+/* ---- stage / svg ---- */
+.wdg-stage {
+  position: relative;
+  width: 100%;
+}
+.wdg-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 180px);
+  overflow: visible;
+  touch-action: pan-y;
+}
+.wdg-stage text {
+  fill: var(--foreground);
+  font-weight: 500;
+  pointer-events: none;
+}
+.wdg-secondary {
+  fill: var(--muted-foreground);
+  font-size: max(11px, calc(var(--font-size-base) * 0.76));
+  font-weight: 400;
+}
+
+/* ---- tooltip ---- */
+.wdg-tooltip {
+  position: absolute;
+  z-index: 3;
+  width: 14.5rem;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--wdg-industrial) 45%, var(--border));
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(160deg, rgba(28, 32, 44, 0.97), rgba(14, 16, 24, 0.97));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 40px -14px rgba(0, 0, 0, 0.7), 0 0 24px -8px color-mix(in srgb, var(--wdg-industrial) 60%, transparent);
+  font-size: calc(var(--font-size-base) * 0.86);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 0);
+  transition: opacity 0.12s ease;
+}
+.wdg-tt-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.wdg-tt-head strong {
+  font-size: calc(var(--font-size-base) * 1.05);
+  font-weight: 800;
+  color: var(--wdg-industrial);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--wdg-industrial) 55%, transparent);
+}
+.wdg-tt-sub {
+  color: var(--muted-foreground);
+  font-weight: 500;
+  font-size: calc(var(--font-size-base) * 0.7);
+}
+.wdg-tt-row {
+  display: grid;
+  grid-template-columns: 0.7rem 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 2.5px 0;
+}
+.wdg-tt-dot {
+  width: 0.68rem;
+  height: 0.68rem;
+  border-radius: 9999px;
+}
+.wdg-tt-label {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.wdg-tt-val {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.wdg-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wdg .loading {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 4rem 0;
+}

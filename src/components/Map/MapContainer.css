@@ -11,6 +11,7 @@
   height: 100%;
 }
 
+
 /* Override Mapbox controls styling */
 .mapboxgl-ctrl-group {
   background: var(--surface-elevated) !important;
