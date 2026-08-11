@@ -246,7 +246,7 @@ function WaterDemandChartV2({ scale = 1 }) {
                 })}
                 {/* Total (agri + domestic + industrial) box, stacked flush below the Gap box */}
                 {(() => {
-                  const label = `Total: ${Math.round(d.netAvail)}`;
+                  const label = `Aval: ${Math.round(d.netAvail)}`;
                   const tH = fs(30);
                   const bW = label.length * fs(11.5) + fs(18);
                   const bX = boxLeft + boxW / 2 - bW / 2;
