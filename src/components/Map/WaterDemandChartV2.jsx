@@ -229,21 +229,35 @@ function WaterDemandChartV2({ scale = 1 }) {
                     <g key={s.key}>
                       <rect x={x0} y={topY} width={w} height={h} fill={s.color} fillOpacity="0.55" stroke={s.color} strokeWidth="1.4" style={{ filter: `drop-shadow(0 0 6px ${s.color})` }} />
                       {wide ? (
-                        <text x={segCx} y={cy} fontWeight="900" fontSize={fs(26)} textAnchor="middle" dominantBaseline="central" transform={`rotate(-90 ${segCx} ${cy})`} style={{ fill: '#000000' }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                        <text x={segCx} y={cy + fs(15)} fontWeight="900" fontSize={fs(26)} textAnchor="middle" dominantBaseline="central" transform={`rotate(-90 ${segCx} ${cy + fs(15)})`} style={{ fill: '#000000' }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                       ) : isDom ? (
                         <g>
-                          <line x1={greenCx + 58} y1={topY + 20} x2={segCx} y2={topY + 20} stroke={lblColor} strokeWidth="1.6" />
-                          <text x={greenCx} y={topY + 20} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                          <line x1={greenCx + 58} y1={topY + fs(50)} x2={segCx} y2={topY + fs(50)} stroke={lblColor} strokeWidth="1.6" />
+                          <text x={greenCx} y={topY + fs(50)} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                         </g>
                       ) : (
                         <g>
-                          <line x1={greenCx + 58} y1={topY + h - 20} x2={segCx} y2={topY + h - 20} stroke={lblColor} strokeWidth="1.6" />
-                          <text x={greenCx} y={topY + h - 20} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                          <line x1={greenCx + 58} y1={topY + h - 30} x2={segCx} y2={topY + h - 30} stroke={lblColor} strokeWidth="1.6" />
+                          <text x={greenCx} y={topY + h - 30} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                         </g>
                       )}
                     </g>
                   );
                 })}
+                {/* Total (agri + domestic + industrial) box, stacked flush below the Gap box */}
+                {(() => {
+                  const label = `Total: ${Math.round(d.netAvail)}`;
+                  const tH = fs(30);
+                  const bW = label.length * fs(11.5) + fs(18);
+                  const bX = boxLeft + boxW / 2 - bW / 2;
+                  const tY = topY; // flush at the top of the availability column, right below the gap box
+                  return (
+                    <g>
+                      <rect x={bX} y={tY} width={bW} height={tH} fill="none" stroke="#000000" strokeWidth="2" strokeDasharray="6 4" />
+                      <text x={boxLeft + boxW / 2} y={tY + tH / 2} fill="#ffffff" fontSize={fs(20)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 7px rgba(255,255,255,0.9))' }}>{label}</text>
+                    </g>
+                  );
+                })()}
               </g>
             );
           })}
