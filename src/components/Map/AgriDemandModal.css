@@ -10,6 +10,28 @@
   overflow: auto;
 }
 
+/* Make the maximize / close controls clearly visible on this chart modal */
+.agri-v2-modal .ic-icon-btn,
+.agri-v2-fullscreen-inner .ic-icon-btn {
+  opacity: 1;
+  color: #e0f2fe;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 0.95rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+}
+.agri-v2-modal .ic-icon-btn:hover,
+.agri-v2-fullscreen-inner .ic-icon-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+/* No dimming overlay when maximized — keep the portal behind fully visible */
+.agri-v2-fullscreen {
+  background: transparent;
+}
+
 .agri-v2-fullscreen-inner {
   width: 92vw;
   max-width: 1400px;

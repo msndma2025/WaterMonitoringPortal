@@ -47,6 +47,53 @@ const loadedLayersCache = new Set();
 // Set access token
 mapboxgl.accessToken = MAP_CONFIG.accessToken;
 
+// Zoom the map to fit a clicked polygon feature
+function fitBoundsToFeature(map, feature) {
+  const geom = feature && feature.geometry;
+  if (!geom || !geom.coordinates) return;
+  const bounds = new mapboxgl.LngLatBounds();
+  const walk = (c) => {
+    if (typeof c[0] === 'number') bounds.extend([c[0], c[1]]);
+    else c.forEach(walk);
+  };
+  walk(geom.coordinates);
+  if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 60, maxZoom: 13, duration: 900 });
+}
+
+// Hover tooltip + click-to-pin (stays open) + click-to-zoom for a polygon layer
+function attachPolygonPopup(map, layerId, buildHtml) {
+  const hoverPopup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, className: 'basin-tooltip', maxWidth: '360px' });
+  const pinnedPopup = new mapboxgl.Popup({ closeButton: true, closeOnClick: false, className: 'basin-tooltip', maxWidth: '360px' });
+  let isPinned = false;
+  pinnedPopup.on('close', () => { isPinned = false; });
+
+  map.on('mousemove', layerId, (e) => {
+    if (e.features && e.features.length > 0) {
+      map.getCanvas().style.cursor = 'pointer';
+      if (!isPinned) hoverPopup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+    }
+  });
+  map.on('mouseleave', layerId, () => {
+    map.getCanvas().style.cursor = '';
+    hoverPopup.remove();
+  });
+  // Click a polygon: pin its tooltip open and zoom to it
+  map.on('click', layerId, (e) => {
+    if (e.features && e.features.length > 0) {
+      hoverPopup.remove();
+      isPinned = true;
+      pinnedPopup.setLngLat(e.lngLat).setHTML(buildHtml(e.features[0].properties)).addTo(map);
+      fitBoundsToFeature(map, e.features[0]);
+    }
+  });
+  // Clicking off the layer closes the pinned tooltip
+  map.on('click', (e) => {
+    if (!isPinned) return;
+    const hits = map.queryRenderedFeatures(e.point, { layers: [layerId] });
+    if (!hits.length) { pinnedPopup.remove(); isPinned = false; }
+  });
+}
+
 const MapContainer = () => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -1285,24 +1332,9 @@ const MapContainer = () => {
   const setupSiteLocations = useCallback(async (map) => {
     if (map.getSource('site-locations-source')) return;
     try {
-      const resp = await fetch('/Polygon%20sites.geojson');
-      if (!resp.ok) throw new Error(`Failed to fetch Polygon sites.geojson: ${resp.status}`);
+      const resp = await fetch('/polygon_sites_monsoon_basin.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch polygon_sites_monsoon_basin.geojson: ${resp.status}`);
       const geojson = await resp.json();
-
-      // Number the sites and compute a rough centroid for each (for the tooltip)
-      (geojson.features || []).forEach((f, i) => {
-        f.properties = f.properties || {};
-        f.properties.siteIndex = i + 1;
-        try {
-          const ring = f.geometry.type === 'MultiPolygon'
-            ? f.geometry.coordinates[0][0]
-            : f.geometry.coordinates[0];
-          let sx = 0, sy = 0;
-          ring.forEach((c) => { sx += c[0]; sy += c[1]; });
-          f.properties.cLng = sx / ring.length;
-          f.properties.cLat = sy / ring.length;
-        } catch { /* ignore malformed geometry */ }
-      });
 
       map.addSource('site-locations-source', { type: 'geojson', data: geojson });
 
@@ -1322,37 +1354,117 @@ const MapContainer = () => {
         paint: { 'line-color': '#f43f5e', 'line-width': 2 },
       });
 
-      const popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false,
-        className: 'basin-tooltip',
-        maxWidth: '240px',
-      });
+      const row = (label, value) =>
+        (value !== undefined && value !== null && value !== '')
+          ? `<div><span style="color:#8899aa;">${label}:</span> ${value}</div>`
+          : '';
 
-      map.on('mousemove', 'site-locations-fill', (e) => {
-        if (e.features && e.features.length > 0) {
-          map.getCanvas().style.cursor = 'pointer';
-          const p = e.features[0].properties;
-          const coords = (p.cLat != null && p.cLng != null)
-            ? `<div><span style="color:#8899aa;">Lat, Lng:</span> ${Number(p.cLat).toFixed(4)}, ${Number(p.cLng).toFixed(4)}</div>`
-            : '';
-          const html = `
-            <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
-              <div style="font-weight:700;color:#fb7185;font-size:14px;margin-bottom:4px;">Site Location ${p.siteIndex ?? ''}</div>
-              ${coords}
-            </div>
-          `;
-          popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-        }
-      });
-      map.on('mouseleave', 'site-locations-fill', () => {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-      });
+      const buildHtml = (p) => `
+        <div style="padding:14px 18px;font-family:sans-serif;font-size:20px;background:#1e1e2e;color:#f0f0f0;border-radius:10px;line-height:1.6;">
+          <div style="font-weight:700;color:#fb7185;font-size:24px;margin-bottom:7px;">${p.Name ?? 'Site'}</div>
+          ${row('River', p.River)}
+          ${row('District', p.district)}
+          ${row('Province', p.province)}
+          ${row('Area', p.area_km2 != null ? `${Number(p.area_km2).toFixed(2)} km²` : null)}
+          ${row('Volume', p.volume_MAF != null ? `${Number(p.volume_MAF).toFixed(4)} MAF` : null)}
+        </div>
+      `;
+
+      attachPolygonPopup(map, 'site-locations-fill', buildHtml);
 
       console.log(`✓ Site Locations loaded (${(geojson.features || []).length} polygons)`);
     } catch (e) {
       console.warn('Could not load Site Locations:', e.message);
+    }
+  }, []);
+
+  // Setup Priority Site Locations layer (local GeoJSON - polygons)
+  const setupPrioritySites = useCallback(async (map) => {
+    if (map.getSource('priority-sites-source')) return;
+    try {
+      const resp = await fetch('/priority_sites_monsoon_basin.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch priority_sites_monsoon_basin.geojson: ${resp.status}`);
+      const geojson = await resp.json();
+
+      map.addSource('priority-sites-source', { type: 'geojson', data: geojson });
+
+      map.addLayer({
+        id: 'priority-sites-fill',
+        type: 'fill',
+        source: 'priority-sites-source',
+        layout: { visibility: 'none' },
+        paint: { 'fill-color': '#fbbf24', 'fill-opacity': 0.45 },
+      });
+
+      map.addLayer({
+        id: 'priority-sites-outline',
+        type: 'line',
+        source: 'priority-sites-source',
+        layout: { visibility: 'none' },
+        paint: { 'line-color': '#f59e0b', 'line-width': 2.5 },
+      });
+
+      const buildHtml = (p) => `
+        <div style="padding:14px 18px;font-family:sans-serif;font-size:20px;background:#1e1e2e;color:#f0f0f0;border-radius:10px;line-height:1.6;">
+          <div style="font-weight:700;color:#fbbf24;font-size:24px;margin-bottom:7px;">${p.Name ?? 'Priority Site'}</div>
+          ${p.Area_km2 != null ? `<div><span style="color:#8899aa;">Area:</span> ${Number(p.Area_km2).toFixed(2)} km²</div>` : ''}
+        </div>
+      `;
+
+      attachPolygonPopup(map, 'priority-sites-fill', buildHtml);
+
+      console.log(`✓ Priority Site Locations loaded (${(geojson.features || []).length} polygons)`);
+    } catch (e) {
+      console.warn('Could not load Priority Site Locations:', e.message);
+    }
+  }, []);
+
+  // Setup Glacial Basins layer (local GeoJSON - polygons)
+  const setupGlacialBasins = useCallback(async (map) => {
+    if (map.getSource('glacial-basins-source')) return;
+    try {
+      const resp = await fetch('/glacial_basins.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch glacial_basins.geojson: ${resp.status}`);
+      const geojson = await resp.json();
+
+      map.addSource('glacial-basins-source', { type: 'geojson', data: geojson });
+
+      map.addLayer({
+        id: 'glacial-basins-fill',
+        type: 'fill',
+        source: 'glacial-basins-source',
+        layout: { visibility: 'none' },
+        paint: { 'fill-color': '#67e8f9', 'fill-opacity': 0.45 },
+      });
+
+      map.addLayer({
+        id: 'glacial-basins-outline',
+        type: 'line',
+        source: 'glacial-basins-source',
+        layout: { visibility: 'none' },
+        paint: { 'line-color': '#22d3ee', 'line-width': 1.5 },
+      });
+
+      const row = (label, value) =>
+        (value !== undefined && value !== null && value !== '')
+          ? `<div><span style="color:#8899aa;">${label}:</span> ${value}</div>`
+          : '';
+
+      const buildHtml = (p) => `
+        <div style="padding:14px 18px;font-family:sans-serif;font-size:20px;background:#1e1e2e;color:#f0f0f0;border-radius:10px;line-height:1.6;">
+          <div style="font-weight:700;color:#67e8f9;font-size:24px;margin-bottom:7px;">Glacial Basin</div>
+          ${row('Layer', p.layer)}
+          ${row('Elevation', p.elevation_ != null ? `${Math.round(Number(p.elevation_))} m` : null)}
+          ${row('Area', p.Area_m2 != null ? `${Number(p.Area_m2).toLocaleString('en-US', { maximumFractionDigits: 0 })} m²` : null)}
+          ${row('Volume', p.Volume_m3 != null ? `${Number(p.Volume_m3).toLocaleString('en-US', { maximumFractionDigits: 0 })} m³` : null)}
+        </div>
+      `;
+
+      attachPolygonPopup(map, 'glacial-basins-fill', buildHtml);
+
+      console.log(`✓ Glacial Basins loaded (${(geojson.features || []).length} polygons)`);
+    } catch (e) {
+      console.warn('Could not load Glacial Basins:', e.message);
     }
   }, []);
 
@@ -1579,6 +1691,8 @@ const MapContainer = () => {
       'monsoonBasin': 'monsoon-basin-layer',
       'monsoonBasin2': 'monsoon-basin2-layer',
       'siteLocations': ['site-locations-fill', 'site-locations-outline'],
+      'prioritySites': ['priority-sites-fill', 'priority-sites-outline'],
+      'glacialBasins': ['glacial-basins-fill', 'glacial-basins-outline'],
       'hillTorrents': ['hill-torrents-fill', 'hill-torrents-outline'],
       'wapdaProposed': 'wapda-proposed-layer',
       'industries': 'industries-layer',
@@ -1664,6 +1778,18 @@ const MapContainer = () => {
       if (layerId === 'siteLocations') {
         await setupSiteLocations(map);
         loadedLayersCache.add('siteLocations');
+      }
+
+      // Priority Site Locations layer (polygons)
+      if (layerId === 'prioritySites') {
+        await setupPrioritySites(map);
+        loadedLayersCache.add('prioritySites');
+      }
+
+      // Glacial Basins layer (polygons)
+      if (layerId === 'glacialBasins') {
+        await setupGlacialBasins(map);
+        loadedLayersCache.add('glacialBasins');
       }
 
       // Hill Torrents layer (polygons)
@@ -1776,7 +1902,7 @@ const MapContainer = () => {
     if (layerId === 'wapdaProposed' && visible) {
       map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupHillTorrents, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupPrioritySites, setupGlacialBasins, setupHillTorrents, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;

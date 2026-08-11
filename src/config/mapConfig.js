@@ -156,6 +156,8 @@ export const LAYER_GROUPS = {
       { id: 'monsoonBasin', label: 'Monsoon Basin', defaultVisible: false },
       { id: 'monsoonBasin2', label: 'Accumulation Points', defaultVisible: false },
       { id: 'siteLocations', label: 'Site Locations', defaultVisible: false },
+      { id: 'prioritySites', label: 'Priority Site Locations', defaultVisible: false },
+      { id: 'glacialBasins', label: 'Glacial Basins', defaultVisible: false },
     ],
   },
   irrigation: {

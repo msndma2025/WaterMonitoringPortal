@@ -40,12 +40,18 @@ function parseCSV(text) {
     .map((d) => ({ ...d, netAvail: d.agriAvail + d.domAvail + d.indAvail }));
 }
 
-function WaterDemandChartV2() {
+function WaterDemandChartV2({ scale = 1 }) {
   const [data, setData] = useState([]);
   const [width, setWidth] = useState(900);
   const [hover, setHover] = useState(null);
   const stageRef = useRef(null);
   const svgRef = useRef(null);
+
+  // Font scales with the chart width so labels stay proportional. Calibrated
+  // to the maximized stage width (~1360px) — at/above that it equals `scale`
+  // (the current maximized look); narrower views shrink proportionally.
+  const fontMult = scale * Math.min(1, width / 1360);
+  const fs = (n) => n * fontMult;
 
   useEffect(() => {
     fetch(CSV_URL)
@@ -112,7 +118,7 @@ function WaterDemandChartV2() {
   const ttTransform = placeRight ? 'translate(0,0)' : 'translate(-100%,0)';
 
   return (
-    <section className="wdg" aria-label="Sector availability proportion with net requirement and gap">
+    <section className="wdg" style={{ '--font-size-base': `${18 * fontMult}px` }} aria-label="Sector availability proportion with net requirement and gap">
       <div className="wdg-legend">
         <div className="wdg-legend-group">
           {sectors.map((s) => (
@@ -166,7 +172,7 @@ function WaterDemandChartV2() {
           <rect x={g.left} y={g.top - g.popBand} width={g.plotW} height={g.popBand} rx="12" fill="var(--wdg-plot)" stroke="var(--wdg-grid)" strokeWidth="1" />
 
           <g>
-            <text x={g.left + 10} y={g.top - g.popBand + (g.compact ? 10 : 12)} fontSize="20" fontWeight="800" textAnchor="start" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.6))' }}>Population (Million)</text>
+            <text x={g.left + 10} y={g.top - g.popBand + (g.compact ? 10 : 12)} fontSize={fs(20)} fontWeight="800" textAnchor="start" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.6))' }}>Population (Million)</text>
             {(() => {
               const pts = [
                 { x: g.left, y: g.yPopBarTop(data[0].population), col: yearColor(0) },
@@ -187,7 +193,7 @@ function WaterDemandChartV2() {
               return (
                 <g key={`pop-${i}`}>
                   <circle cx={px} cy={py} r="5.5" fill={col} stroke="#04121f" strokeWidth="1.5" style={{ filter: `drop-shadow(0 0 6px ${col})` }} />
-                  <text x={px} y={py - 24} fontSize="22" fontWeight="900" textAnchor="middle" dominantBaseline="middle" style={{ fill: col, paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${col})` }}>{fmt(d.population)}</text>
+                  <text x={px} y={py - 24} fontSize={fs(22)} fontWeight="900" textAnchor="middle" dominantBaseline="middle" style={{ fill: col, paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${col})` }}>{fmt(d.population)}</text>
                 </g>
               );
             })}
@@ -208,8 +214,8 @@ function WaterDemandChartV2() {
                 <g>
                   <rect x={boxLeft} y={reqTop} width={boxW} height={reqH} fill={COL.requirement} fillOpacity="0.12" stroke={COL.requirement} strokeOpacity="0.85" strokeWidth="1.8" strokeDasharray="6 4" style={{ filter: `drop-shadow(0 0 6px ${COL.requirement})` }} />
                   <rect x={boxLeft} y={reqTop} width={boxW} height={topY - reqTop} fill="url(#v2-gap-hatch)" />
-                  <text x={boxLeft + boxW / 2} y={reqTop - 10} fill={COL.requirement} fontSize="21" fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>Req: {Math.round(d.netDemand)}</text>
-                  <text x={boxLeft + boxW / 2} y={(reqTop + topY) / 2} fill={COL.gap} fontSize="21" fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.gap})` }}>Gap: {Math.round(d.netDemand - d.netAvail)}</text>
+                  <text x={boxLeft + boxW / 2} y={reqTop - 10} fill={COL.requirement} fontSize={fs(21)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>Req: {Math.round(d.netDemand)}</text>
+                  <text x={boxLeft + boxW / 2} y={(reqTop + topY) / 2} fill={COL.gap} fontSize={fs(21)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.gap})` }}>Gap: {Math.round(d.netDemand - d.netAvail)}</text>
                 </g>
                 {sectors.map((s) => {
                   const w = (d[s.key] / d.netAvail) * boxW;
@@ -223,16 +229,16 @@ function WaterDemandChartV2() {
                     <g key={s.key}>
                       <rect x={x0} y={topY} width={w} height={h} fill={s.color} fillOpacity="0.55" stroke={s.color} strokeWidth="1.4" style={{ filter: `drop-shadow(0 0 6px ${s.color})` }} />
                       {wide ? (
-                        <text x={segCx} y={cy} fontWeight="900" fontSize="26" textAnchor="middle" dominantBaseline="central" transform={`rotate(-90 ${segCx} ${cy})`} style={{ fill: '#000000' }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                        <text x={segCx} y={cy} fontWeight="900" fontSize={fs(26)} textAnchor="middle" dominantBaseline="central" transform={`rotate(-90 ${segCx} ${cy})`} style={{ fill: '#000000' }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                       ) : isDom ? (
                         <g>
                           <line x1={greenCx + 58} y1={topY + 20} x2={segCx} y2={topY + 20} stroke={lblColor} strokeWidth="1.6" />
-                          <text x={greenCx} y={topY + 20} fontWeight="900" fontSize="20" textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                          <text x={greenCx} y={topY + 20} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                         </g>
                       ) : (
                         <g>
                           <line x1={greenCx + 58} y1={topY + h - 20} x2={segCx} y2={topY + h - 20} stroke={lblColor} strokeWidth="1.6" />
-                          <text x={greenCx} y={topY + h - 20} fontWeight="900" fontSize="20" textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
+                          <text x={greenCx} y={topY + h - 20} fontWeight="900" fontSize={fs(20)} textAnchor="middle" dominantBaseline="central" style={{ fill: lblColor, paintOrder: 'stroke', stroke: '#eaf6ff', strokeWidth: 3 }}>{s.name}: {Number(d[s.key]).toFixed(1)}</text>
                         </g>
                       )}
                     </g>
@@ -247,7 +253,7 @@ function WaterDemandChartV2() {
           {data.map((d, i) => {
             const col = yearColor(i);
             return (
-              <text key={`yl-${i}`} x={g.xFor(i)} y={g.bottom + 42} textAnchor="middle" dominantBaseline="middle" fontWeight="900" style={{ fontSize: '22px', fill: col, paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${col})` }}>{d.year}</text>
+              <text key={`yl-${i}`} x={g.xFor(i)} y={g.bottom + 42} textAnchor="middle" dominantBaseline="middle" fontWeight="900" style={{ fontSize: `${fs(22)}px`, fill: col, paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${col})` }}>{d.year}</text>
             );
           })}
 

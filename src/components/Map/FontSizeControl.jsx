@@ -10,7 +10,7 @@ const FontSizeControl = ({ variant = 'table' }) => {
   const scale = isSidebar ? store.sidebarFontScale : store.tableFontScale;
   const bump = isSidebar ? store.bumpSidebarFontScale : store.bumpTableFontScale;
   const reset = () => (isSidebar ? store.setSidebarFontScale(1.1) : store.setTableFontScale(1.15));
-  const max = isSidebar ? 1.8 : 2;
+  const max = isSidebar ? 1.8 : 3;
 
   const pct = Math.round(scale * 100);
 
