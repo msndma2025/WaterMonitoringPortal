@@ -10,6 +10,7 @@ const CSV_URL = '/Updated_With_Population%202047.csv';
 //   - For_Graph_333: full demand + sector availability, 2026–2030
 //   - Updated_WATER 2047: per-sector availability only (no demand), 2031–2047
 const ACTUALS_URLS = [
+  '/Updated_Agri_total_Requirment_final.csv',
   '/For_Graph_333_Updated_With_Population.csv',
   '/Updated_WATER%202047.csv',
 ];
@@ -17,7 +18,7 @@ const ACTUALS_URLS = [
 const COL = {
   agri: '#22d3ff',
   domestic: '#ff2d95',
-  industrial: '#e9d700',
+  industrial: '#ff6347',
   requirement: '#ffd60a',
   available: '#f8fafc',
   gap: '#ff8a5c',
@@ -113,7 +114,7 @@ function parseSpine(text) {
 
 // Header-driven parse of the availability/demand file → { [year]: {...} }.
 function parseActuals(text) {
-  const lines = text.trim().split(/\r?\n/);
+  const lines = text.replace(/^﻿/, '').trim().split(/\r?\n/);
   if (lines.length < 2) return {};
   const header = lines[0].split(',').map((h) => h.trim().toLowerCase());
   const idx = (...names) => {
@@ -133,7 +134,7 @@ function parseActuals(text) {
     agriD: idx('agriculture_demand', 'agri_demand', 'agri demand'),
     indD: idx('industial_demand', 'industrial_demand', 'industrial demand'),
     domD: idx('domestic_demand', 'dom_demand', 'domestic demand'),
-    totalD: idx('total_demand', 'net_demand', 'total demand'),
+    totalD: idx('total_requirement', 'total_demand', 'net_demand', 'total demand', 'total requirement'),
   };
   const map = {};
   for (const line of lines.slice(1)) {
@@ -372,7 +373,7 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
         const wide = w >= 20;
         const isDom = s.key === 'domAvail';
         const isAgri = s.key === 'agriAvail';
-        const lblColor = isDom ? COL.domestic : '#e9d700';
+        const lblColor = isDom ? COL.domestic : COL.industrial;
         const sName = isAgri ? 'Agri' : fit ? s.short : s.name;
         const lead = fit ? 30 : 58;
         const val = Number(d[s.key]).toFixed(1);
