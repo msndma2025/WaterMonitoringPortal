@@ -34,7 +34,9 @@
       "Bash(echo \"exit=$?\")",
       "Bash(wc -c /tmp/prov.json)",
       "Bash(head -c 300 /tmp/prov.json)",
-      "Bash(curl -s --max-time 30 \"http://172.18.1.4:8080/geoserver/abdul_sattar/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=abdul_sattar:Provincial_Boundary&outputFormat=application/json&srsName=EPSG:4326\" -o prov_boundary.json)"
+      "Bash(curl -s --max-time 30 \"http://172.18.1.4:8080/geoserver/abdul_sattar/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=abdul_sattar:Provincial_Boundary&outputFormat=application/json&srsName=EPSG:4326\" -o prov_boundary.json)",
+      "Bash(node -e \"require\\('@babel/core'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

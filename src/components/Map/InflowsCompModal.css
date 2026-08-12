@@ -49,6 +49,7 @@
   transition: opacity 0.15s, background 0.15s;
 }
 .ic-icon-btn:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.ic-icon-btn.is-active { opacity: 1; color: #38f8c8; background: rgba(56,248,200,0.14); }
 
 .ic-table-wrap { overflow-x: auto; }
 

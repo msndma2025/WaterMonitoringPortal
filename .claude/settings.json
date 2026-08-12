@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rnE \"fa-\\\\\\\\\\\\$\\\\{maximized \\\\? 'compress' : 'expand'\\\\}|Maximize|Restore\" IndDomModal.jsx DamLevelsModal.jsx InflowsCompModal.jsx AgriDemandModal.jsx)",
+      "Bash(ls -la polygon_sites_monsoon_basin.geojson)",
+      "Bash(python -c ' *)",
+      "Bash(ls -la priority_sites_monsoon_basin.geojson)",
+      "Bash(ls -la glacial_basins.geojson)"
+    ]
+  }
+}

@@ -4,6 +4,15 @@
   width: min(900px, calc(100vw - 40px));
 }
 
+/* Fit-all: stretch the modal edge-to-edge. */
+.agri-v2-modal.is-fit {
+  left: 1vw !important;
+  right: 1vw !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
 .agri-v2-body {
   padding: 0.8rem 1rem 1rem;
   background: #181818;
@@ -35,6 +44,10 @@
 .agri-v2-fullscreen-inner {
   width: 92vw;
   max-width: 1400px;
+}
+.agri-v2-fullscreen-inner.is-fit {
+  width: 100vw;
+  max-width: none;
 }
 
 .agri-v2-body-full {

@@ -10,6 +10,7 @@ import './AgriDemandModal.css';
 const AgriDemandModal = () => {
   const { showAgriModal, setShowAgriModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
+  const [fitAll, setFitAll] = useState(false);
   const dragControls = useDragControls();
 
   useEffect(() => {
@@ -28,6 +29,13 @@ const AgriDemandModal = () => {
       <span className="ic-title">Demand vs Availability</span>
       <div className="ic-header-btns">
         <FontSizeControl />
+        <button
+          className={`ic-icon-btn${fitAll ? ' is-active' : ''}`}
+          onClick={() => setFitAll(!fitAll)}
+          title={fitAll ? 'Scrollable view' : 'Fit all years'}
+        >
+          <i className={`fas fa-${fitAll ? 'arrows-left-right' : 'arrows-left-right-to-line'}`} />
+        </button>
         <button className="ic-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
         </button>
@@ -44,8 +52,12 @@ const AgriDemandModal = () => {
         <AnimatePresence>
           {showAgriModal && !isMaximized && (
             <motion.div
-              className="ic-modal agri-v2-modal"
-              style={{ width: `min(${Math.round(760 * tableFontScale)}px, 96vw)`, minWidth: 'auto', maxWidth: 'none' }}
+              className={`ic-modal agri-v2-modal${fitAll ? ' is-fit' : ''}`}
+              style={
+                fitAll
+                  ? { minWidth: 'auto', maxWidth: 'none' }
+                  : { width: `min(${Math.round(760 * tableFontScale)}px, 96vw)`, minWidth: 'auto', maxWidth: 'none' }
+              }
               drag
               dragControls={dragControls}
               dragListener={false}
@@ -57,7 +69,7 @@ const AgriDemandModal = () => {
             >
               {header(false)}
               <div className="agri-v2-body">
-                <WaterDemandChartV2 scale={tableFontScale} />
+                <WaterDemandChartV2 scale={tableFontScale} full={false} fit={fitAll} />
               </div>
             </motion.div>
           )}
@@ -75,10 +87,10 @@ const AgriDemandModal = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="ic-fullscreen-inner agri-v2-fullscreen-inner">
+              <div className={`ic-fullscreen-inner agri-v2-fullscreen-inner${fitAll ? ' is-fit' : ''}`}>
                 {header(true)}
                 <div className="agri-v2-body agri-v2-body-full">
-                  <WaterDemandChartV2 scale={tableFontScale} />
+                  <WaterDemandChartV2 scale={tableFontScale} full={true} fit={fitAll} />
                 </div>
               </div>
             </motion.div>
