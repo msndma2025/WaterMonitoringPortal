@@ -333,12 +333,12 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
           <rect x={boxLeft} y={reqTop} width={boxW} height={reqH} fill={COL.requirement} fillOpacity="0.12" stroke={COL.requirement} strokeOpacity="0.85" strokeWidth="1.8" strokeDasharray="6 4" style={{ filter: `drop-shadow(0 0 6px ${COL.requirement})` }} />
           <rect x={boxLeft} y={reqTop} width={boxW} height={availTop - reqTop} fill="url(#v2-gap-hatch)" />
           {fit ? (
-            <text x={cxc} y={reqTop - 35} fill={COL.requirement} fontSize={fs(16)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>
+            <text x={cxc} y={reqTop - 44} fill={COL.requirement} fontSize={fs(16)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>
               <tspan x={cxc} dy={0}>Req</tspan>
               <tspan x={cxc} dy={fs(26)}>{reqNum}</tspan>
             </text>
           ) : (
-            <text x={cxc} y={reqTop - 10} fill={COL.requirement} fontSize={fs(21)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>Req: {reqNum}</text>
+            <text x={cxc} y={reqTop - 18} fill={COL.requirement} fontSize={fs(21)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>Req: {reqNum}</text>
           )}
           {fit ? (
             <text x={cxc} y={gapMidY} fill={COL.gap} fontSize={fs(16)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.gap})` }}>
@@ -570,6 +570,23 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
                 {renderColumn(d, i)}
               </g>
             ))}
+
+            {/* Requirement trend: dot on each Req box top, joined by a sine wave */}
+            {(() => {
+              const reqPts = data
+                .map((d, i) => (d.hasDemand ? { x: g.xFor(i), y: g.y(d.netDemand) } : null))
+                .filter(Boolean);
+              if (reqPts.length < 2) return null;
+              const amp = Math.min(g.step * 0.07, 5);
+              return (
+                <g style={{ pointerEvents: 'none' }}>
+                  <path d={smoothPath(wavyPoints(reqPts, amp))} fill="none" stroke={COL.requirement} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 5px ${COL.requirement})` }} />
+                  {reqPts.map((p, i) => (
+                    <circle key={`reqdot-${i}`} cx={p.x} cy={p.y} r="5" fill={COL.requirement} stroke="#04121f" strokeWidth="1.5" />
+                  ))}
+                </g>
+              );
+            })()}
 
             <text x={20} y={(g.top + g.bottom) / 2} className="wdg-secondary" fontSize="42" fontWeight="700" textAnchor="middle" dominantBaseline="middle" transform={`rotate(-90 20 ${(g.top + g.bottom) / 2})`}>WATER (MAF)</text>
 
