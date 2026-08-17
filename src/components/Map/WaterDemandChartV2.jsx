@@ -194,9 +194,14 @@ function buildData(spine, actuals) {
   });
 }
 
-function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
-  const [data, setData] = useState([]);
+function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = false }) {
+  const [allData, setData] = useState([]);
+  const data = useMemo(
+    () => (limited ? allData.filter((d) => d.year >= 2026 && d.year <= 2030) : allData),
+    [allData, limited]
+  );
   const [width, setWidth] = useState(900);
+  const [stageH, setStageH] = useState(0);
   const [hover, setHover] = useState(null);
   const [scrollState, setScrollState] = useState({ left: false, right: false });
   const stageRef = useRef(null);
@@ -228,8 +233,9 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
     if (!stageRef.current) return;
     const el = stageRef.current;
     const ro = new ResizeObserver(() => {
-      const w = Math.max(280, Math.floor(el.getBoundingClientRect().width) || 900);
-      setWidth(w);
+      const rect = el.getBoundingClientRect();
+      setWidth(Math.max(280, Math.floor(rect.width) || 900));
+      setStageH(Math.floor(rect.height) || 0);
       updateScroll();
     });
     ro.observe(el);
@@ -247,13 +253,22 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
     if (!data.length) return null;
     const left = 100;
     const right = 40;
-    const popBand = 180;
+    const popBand = fit ? 210 : 180;
     const top = 40 + popBand;
-    const plotH = 450;
-    const bottom = top + plotH;
-    const chartH = bottom + 72;
+    const bottomPad = 72;
     // Fit mode: squeeze every year into the visible width (no scrolling).
     const contentWidth = fit ? width : Math.max(width, left + right + data.length * STEP);
+    // Windowed full-width fit fills the whole modal: match the viewBox aspect to
+    // the measured stage box so the chart covers both width and height (no side
+    // or top/bottom letterbox). Other modes use fixed proportions.
+    const fillBox = fit && !full && stageH > 0;
+    const plotH = fillBox
+      ? Math.max(360, stageH * (contentWidth / width) - top - bottomPad)
+      : fit
+      ? 660
+      : 450;
+    const bottom = top + plotH;
+    const chartH = bottom + bottomPad;
     const plotW = contentWidth - left - right;
     const step = plotW / data.length;
     const xFor = (i) => left + (i + 0.5) * step;
@@ -273,12 +288,13 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
     const popMax = Math.max(...data.map((d) => d.population));
     const popRange = popMax - popMin || 1;
     // Big vertical sweep so the rising population reads as a clear wavy curve,
-    // not a shallow near-flat diagonal.
-    const popVariation = 118;
+    // not a shallow near-flat diagonal. Capped so the top value label keeps
+    // clearance inside the population band.
+    const popVariation = 98;
     const yPopBarTop = (v) => top - 30 - ((v - popMin) / popRange) * popVariation;
 
     return { left, right, plotW, top, plotH, bottom, chartH, contentWidth, step, xFor, boxW, boxLeftFor, yMax, y, yPopBarTop, popBand };
-  }, [width, data, fit]);
+  }, [width, data, fit, full, stageH]);
 
   if (!data.length || !g) {
     return (
@@ -440,7 +456,7 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
   };
 
   return (
-    <section className="wdg" style={{ '--font-size-base': `${18 * fontMult}px` }} aria-label="Water demand vs availability with population per year">
+    <section className={`wdg${full || fit ? ' wdg-lg-legend' : ''}`} style={{ '--font-size-base': `${18 * fontMult}px` }} aria-label="Water demand vs availability with population per year">
       <div className="wdg-legend">
         <div className="wdg-legend-group">
           {sectors.map((s) => (
@@ -535,11 +551,7 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false }) {
             <g className="wdg-pop-anim">
               <text x={g.left + 10} y={g.top - g.popBand + 12} fontSize={fs(20)} fontWeight="800" textAnchor="start" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.6))' }}>Population (Million)</text>
               {(() => {
-                const pts = [
-                  { x: g.left, y: g.yPopBarTop(data[0].population) },
-                  ...data.map((d, i) => ({ x: g.xFor(i), y: g.yPopBarTop(d.population) })),
-                  { x: g.left + g.plotW, y: g.yPopBarTop(data[data.length - 1].population) },
-                ];
+                const pts = data.map((d, i) => ({ x: g.xFor(i), y: g.yPopBarTop(d.population) }));
                 const linePath = 'M ' + pts.map((p) => `${p.x} ${p.y}`).join(' L ');
                 return (
                   <path

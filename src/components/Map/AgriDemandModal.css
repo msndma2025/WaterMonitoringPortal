@@ -4,19 +4,53 @@
   width: min(900px, calc(100vw - 40px));
 }
 
-/* Fit-all: stretch the modal edge-to-edge. */
+/* Fit-all: stretch the modal edge-to-edge and full height (navbar stays). */
 .agri-v2-modal.is-fit {
-  left: 1vw !important;
-  right: 1vw !important;
+  top: calc(var(--header-height, 62px) + 8px) !important;
+  bottom: 10px !important;
+  left: 3px !important;
+  right: 3px !important;
   width: auto !important;
+  height: auto !important;
   min-width: 0 !important;
   max-width: none !important;
+  display: flex;
+  flex-direction: column;
+}
+.agri-v2-modal.is-fit .agri-v2-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+.agri-v2-modal.is-fit .wdg {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+.agri-v2-modal.is-fit .wdg-stage-wrap,
+.agri-v2-modal.is-fit .wdg-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.agri-v2-modal.is-fit .wdg-stage--fit svg {
+  width: 100%;
+  height: 100%;
+  max-height: none;
 }
 
 .agri-v2-body {
   padding: 0.8rem 1rem 1rem;
   background: #181818;
   overflow: auto;
+}
+
+/* Larger modal title for this chart */
+.agri-v2-modal .ic-title,
+.agri-v2-fullscreen-inner .ic-title {
+  font-size: 1.15rem;
 }
 
 /* Make the maximize / close controls clearly visible on this chart modal */

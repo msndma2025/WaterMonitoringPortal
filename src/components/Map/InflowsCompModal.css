@@ -50,6 +50,7 @@
 }
 .ic-icon-btn:hover { opacity: 1; background: rgba(255,255,255,0.08); }
 .ic-icon-btn.is-active { opacity: 1; color: #38f8c8; background: rgba(56,248,200,0.14); }
+.ic-icon-btn-text { font-weight: 800; line-height: 1; min-width: 1.4em; text-align: center; }
 
 .ic-table-wrap { overflow-x: auto; }
 

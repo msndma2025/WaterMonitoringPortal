@@ -10,8 +10,14 @@ import './AgriDemandModal.css';
 const AgriDemandModal = () => {
   const { showAgriModal, setShowAgriModal, tableFontScale } = useMapStore();
   const [isMaximized, setIsMaximized] = useState(false);
-  const [fitAll, setFitAll] = useState(false);
+  const [fitAll, setFitAll] = useState(true);
+  const [limited, setLimited] = useState(false);
   const dragControls = useDragControls();
+
+  // Open in the full-width chart by default each time the modal is shown.
+  useEffect(() => {
+    if (showAgriModal) setFitAll(true);
+  }, [showAgriModal]);
 
   useEffect(() => {
     if (!isMaximized) return;
@@ -38,6 +44,13 @@ const AgriDemandModal = () => {
         </button>
         <button className="ic-icon-btn" onClick={() => setIsMaximized(!maximized)} title={maximized ? 'Restore' : 'Maximize'}>
           <i className={`fas fa-${maximized ? 'compress' : 'expand'}`} />
+        </button>
+        <button
+          className={`ic-icon-btn ic-icon-btn-text${limited ? ' is-active' : ''}`}
+          onClick={() => setLimited(!limited)}
+          title={limited ? 'Show all years' : 'Limit to 2026–2030'}
+        >
+          L
         </button>
         <button className="ic-icon-btn" onClick={() => { setShowAgriModal(false); setIsMaximized(false); }}>
           <i className="fas fa-times" />
@@ -69,7 +82,7 @@ const AgriDemandModal = () => {
             >
               {header(false)}
               <div className="agri-v2-body">
-                <WaterDemandChartV2 scale={tableFontScale} full={false} fit={fitAll} />
+                <WaterDemandChartV2 scale={tableFontScale} full={false} fit={fitAll} limited={limited} />
               </div>
             </motion.div>
           )}
@@ -90,7 +103,7 @@ const AgriDemandModal = () => {
               <div className={`ic-fullscreen-inner agri-v2-fullscreen-inner${fitAll ? ' is-fit' : ''}`}>
                 {header(true)}
                 <div className="agri-v2-body agri-v2-body-full">
-                  <WaterDemandChartV2 scale={tableFontScale} full={true} fit={fitAll} />
+                  <WaterDemandChartV2 scale={tableFontScale} full={true} fit={fitAll} limited={limited} />
                 </div>
               </div>
             </motion.div>

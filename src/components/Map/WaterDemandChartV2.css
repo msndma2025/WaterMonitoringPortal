@@ -60,6 +60,13 @@
   height: 0.88rem;
   display: inline-block;
 }
+
+/* Larger legend for maximized / full-width views */
+.wdg-lg-legend .wdg-legend-item { font-size: 1.12rem; }
+.wdg-lg-legend .wdg-swatch { width: 1.15rem; height: 1.15rem; }
+.wdg-lg-legend .wdg-line-key { width: 2.2rem; border-top-width: 0.26rem; }
+.wdg-lg-legend .wdg-note { font-size: 1rem; }
+.wdg-lg-legend .wdg-legend-group { gap: 1rem; }
 .wdg-line-key {
   width: 1.75rem;
   display: inline-block;
