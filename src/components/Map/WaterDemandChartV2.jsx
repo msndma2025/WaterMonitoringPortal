@@ -18,7 +18,7 @@ const ACTUALS_URLS = [
 const COL = {
   agri: '#22d3ff',
   domestic: '#ff2d95',
-  industrial: '#ff6347',
+  industrial: '#e9d700',
   requirement: '#ffd60a',
   available: '#f8fafc',
   gap: '#ff8a5c',
