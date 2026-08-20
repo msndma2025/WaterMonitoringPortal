@@ -552,6 +552,8 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
           <span className="wdg-legend-item"><span className="wdg-line-key wdg-demand-key" style={{ borderTopColor: COL.requirement }} aria-hidden="true" /><span>Net Requirement</span></span>
           <span className="wdg-legend-item"><span className="wdg-line-key" style={{ borderTopColor: COL.available }} aria-hidden="true" /><span>Net Available</span></span>
           <span className="wdg-legend-item"><span className="wdg-swatch" style={{ background: 'rgba(255,138,92,0.4)' }} aria-hidden="true" /><span>Gap</span></span>
+          <span className="wdg-legend-item"><span className="wdg-swatch" style={{ background: '#000000', border: `2px solid ${COL.requirement}`, borderRadius: '50%' }} aria-hidden="true" /><span>Gap (current supply)</span></span>
+          <span className="wdg-legend-item"><span className="wdg-swatch" style={{ background: COL.requirement, borderRadius: '50%' }} aria-hidden="true" /><span>Gap (after dams)</span></span>
           <span className="wdg-legend-item"><span className="wdg-line-key" style={{ borderImage: `linear-gradient(90deg, ${POP_STOPS.join(',')}) 1`, borderTopStyle: 'solid' }} aria-hidden="true" /><span>Population</span></span>
         </div>
         {anyNoDemand && <span className="wdg-note">Demand &amp; gap ( {DOTS} ) — data pending</span>}
