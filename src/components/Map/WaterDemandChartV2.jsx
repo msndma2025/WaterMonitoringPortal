@@ -22,10 +22,27 @@ const COL = {
   requirement: '#ffd60a',
   available: '#f8fafc',
   gap: '#ff8a5c',
+  s: '#ffffff',
   pending: '#7f95ad',
 };
 
 const DOTS = '...';
+
+// Manual overrides for displayed gap figures (year → gap value).
+const GAP_OVERRIDE = { 2046: 44, 2047: 43 };
+
+// Per-year manual bumps for the pink line (year → amount added to its number,
+// which also lifts that point up the chart).
+const PINK_EXTRA = { 2031: 6, 2040: 11, 2047: 16 };
+
+// Placeholder "S" segment values (year → value). Random for now — replace with
+// real data when it arrives.
+const S_VALUES = {
+  2028: 5, 2029: 6, 2030: 6, 2031: 7, 2032: 7,
+  2033: 8, 2034: 8, 2035: 9, 2036: 9, 2037: 10, 2038: 10, 2039: 11,
+  2040: 11, 2041: 12, 2042: 12, 2043: 13, 2044: 13, 2045: 14,
+  2046: 14, 2047: 15,
+};
 
 // Population gradient: blue → green → yellow → orange → red, spread across the
 // full year range so the line reads as a rising blue-to-red trend.
@@ -80,6 +97,45 @@ function smoothPath(pts) {
     d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
   }
   return d;
+}
+
+// Linear interpolation of a { year: value } anchor map at a given year. Values
+// before the first / after the last anchor clamp to that anchor.
+function lerpMap(map, year) {
+  const years = Object.keys(map).map(Number).sort((a, b) => a - b);
+  if (year <= years[0]) return map[years[0]];
+  if (year >= years[years.length - 1]) return map[years[years.length - 1]];
+  for (let j = 0; j < years.length - 1; j++) {
+    const y0 = years[j];
+    const y1 = years[j + 1];
+    if (year >= y0 && year <= y1) {
+      const f = (year - y0) / (y1 - y0);
+      return map[y0] + (map[y1] - map[y0]) * f;
+    }
+  }
+  return 0;
+}
+
+// Five-point star path centered at (cx, cy) with the given outer/inner radii.
+function starPath(cx, cy, outer, inner) {
+  let d = '';
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    d += `${i === 0 ? 'M' : 'L'} ${x} ${y} `;
+  }
+  return d + 'Z';
+}
+
+// Extra MAF added on top of availability by the dams programme: 2 MAF per
+// 2-year box from 2027, plus a further 7 MAF ("2 x Dams") from 2032.
+function damAdd(year) {
+  if (year < 2027) return 0;
+  const maf = 2 * (Math.floor((year - 2027) / 2) + 1);
+  const dams = year >= 2032 ? 7 : 0;
+  return maf + dams;
 }
 
 // fixed per-year column width (px in viewBox units) so sizing stays constant
@@ -263,10 +319,10 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
     // or top/bottom letterbox). Other modes use fixed proportions.
     const fillBox = fit && !full && stageH > 0;
     const plotH = fillBox
-      ? Math.max(360, stageH * (contentWidth / width) - top - bottomPad)
+      ? Math.max(480, stageH * (contentWidth / width) - top - bottomPad)
       : fit
-      ? 660
-      : 450;
+      ? 820
+      : 560;
     const bottom = top + plotH;
     const chartH = bottom + bottomPad;
     const plotW = contentWidth - left - right;
@@ -313,9 +369,9 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * g.yMax));
 
   const sectors = [
-    { key: 'agriAvail', label: 'Agri Availability', name: 'Agri', short: 'A', color: COL.agri },
-    { key: 'domAvail', label: 'Domestic Availability', name: 'Domestic', short: 'D', color: COL.domestic },
-    { key: 'indAvail', label: 'Industrial Availability', name: 'Industrial', short: 'I', color: COL.industrial },
+    { key: 'agriAvail', label: 'Agri Water', name: 'Agri', short: 'A', color: COL.agri },
+    { key: 'domAvail', label: 'Domestic Water', name: 'Domestic', short: 'D', color: COL.domestic },
+    { key: 'indAvail', label: 'Industrial Water', name: 'Industrial', short: 'I', color: COL.industrial },
   ];
 
   const anyNoDemand = data.some((d) => !d.hasDemand);
@@ -342,28 +398,56 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
       const reqTop = g.y(d.netDemand);
       const reqH = g.bottom - reqTop;
       const reqNum = Math.round(d.netDemand);
-      const gapNum = Math.round(d.netDemand - d.netAvail);
-      const gapMidY = (reqTop + availTop) / 2;
+      const gapNum = GAP_OVERRIDE[d.year] ?? Math.round(d.netDemand - d.netAvail);
+      // Split the gap band: "S" segment fills its lower portion (disabled for now).
+      const sNum = null; // S_VALUES[d.year];
+      const sSplitY = sNum != null ? availTop - (availTop - reqTop) * 0.52 : availTop;
+      const gapMidY = (reqTop + sSplitY) / 2;
+      const sMidY = (sSplitY + availTop) / 2;
       demandEls = (
         <g>
           <rect x={boxLeft} y={reqTop} width={boxW} height={reqH} fill={COL.requirement} fillOpacity="0.12" stroke={COL.requirement} strokeOpacity="0.85" strokeWidth="1.8" strokeDasharray="6 4" style={{ filter: `drop-shadow(0 0 6px ${COL.requirement})` }} />
           <rect x={boxLeft} y={reqTop} width={boxW} height={availTop - reqTop} fill="url(#v2-gap-hatch)" />
-          {fit ? (
-            <text x={cxc} y={reqTop - 44} fill={COL.requirement} fontSize={fs(16)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>
-              <tspan x={cxc} dy={0}>Req</tspan>
-              <tspan x={cxc} dy={fs(26)}>{reqNum}</tspan>
-            </text>
-          ) : (
-            <text x={cxc} y={reqTop - 18} fill={COL.requirement} fontSize={fs(21)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>Req: {reqNum}</text>
+          {sNum != null && (
+            <>
+              <rect x={boxLeft} y={sSplitY} width={boxW} height={availTop - sSplitY} fill={COL.s} fillOpacity="0.3" stroke={COL.s} strokeOpacity="0.85" strokeWidth="1.6" style={{ filter: `drop-shadow(0 0 6px ${COL.s})` }} />
+              {fit ? (
+                <text x={cxc} y={sMidY} fill={COL.s} fontSize={fs(16)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.s})` }}>
+                  <tspan x={cxc} dy={fs(-8)}>S</tspan>
+                  <tspan x={cxc} dy={fs(17)}>{sNum}</tspan>
+                </text>
+              ) : (
+                <text x={cxc} y={sMidY} fill={COL.s} fontSize={fs(21)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.s})` }}>S: {sNum}</text>
+              )}
+            </>
           )}
-          {fit ? (
-            <text x={cxc} y={gapMidY} fill={COL.gap} fontSize={fs(16)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.gap})` }}>
-              <tspan x={cxc} dy={fs(-13)}>Gap</tspan>
-              <tspan x={cxc} dy={fs(26)}>{gapNum}</tspan>
-            </text>
-          ) : (
-            <text x={cxc} y={gapMidY} fill={COL.gap} fontSize={fs(21)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 4, filter: `drop-shadow(0 0 8px ${COL.gap})` }}>Gap: {gapNum}</text>
-          )}
+          <text x={cxc} y={reqTop - fs(18)} fill={COL.requirement} fontSize={fs(fit ? 18 : 21)} fontWeight="800" textAnchor="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: `drop-shadow(0 0 6px ${COL.requirement})` }}>{reqNum}</text>
+          {/* Original gap in a black circle (yellow text), just outside the box
+              touching the top-right corner. */}
+          {(() => {
+            const r = fs(13);
+            const cx = boxLeft + boxW + r / Math.SQRT2;
+            const cy = reqTop - r / Math.SQRT2;
+            return (
+              <g>
+                <circle cx={cx} cy={cy} r={r} fill="#000000" stroke={COL.requirement} strokeWidth="1.5" />
+                <text x={cx} y={cy} fontSize={fs(13)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: COL.requirement }}>{gapNum}</text>
+              </g>
+            );
+          })()}
+          {/* New gap (Req − dam line value) in a yellow circle, top-right. */}
+          {d.year >= 2027 && (() => {
+            const r = fs(13);
+            const cx = boxLeft + boxW - r - fs(3);
+            const cy = reqTop + r + fs(3);
+            const newGap = reqNum - (Math.round(d.netAvail) + damAdd(d.year));
+            return (
+              <g>
+                <circle cx={cx} cy={cy} r={r} fill={COL.requirement} stroke="#04121f" strokeWidth="1.5" />
+                <text x={cx} y={cy} fontSize={fs(13)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#000000' }}>{newGap}</text>
+              </g>
+            );
+          })()}
         </g>
       );
     } else {
@@ -515,6 +599,10 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
                 <rect width="9" height="9" fill={COL.gap} fillOpacity="0.12" />
                 <line x1="0" y1="0" x2="0" y2="9" stroke={COL.gap} strokeWidth="1.8" opacity="0.75" />
               </pattern>
+              <pattern id="v2-dam-crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
+                <rect width="8" height="8" fill="#7CFC00" fillOpacity="0.55" />
+                <path d="M0,0 l8,8 M8,0 l-8,8" stroke="#0b6623" strokeWidth="1.1" opacity="0.85" />
+              </pattern>
               <pattern id="v2-pending-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                 <rect width="10" height="10" fill={COL.pending} fillOpacity="0.14" />
                 <line x1="0" y1="0" x2="0" y2="10" stroke={COL.pending} strokeWidth="1.6" opacity="0.5" />
@@ -549,7 +637,7 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
             <rect x={g.left} y={g.top - g.popBand} width={g.plotW} height={g.popBand} rx="12" fill="var(--wdg-plot)" stroke="var(--wdg-grid)" strokeWidth="1" />
 
             <g className="wdg-pop-anim">
-              <text x={g.left + 10} y={g.top - g.popBand + 12} fontSize={fs(20)} fontWeight="800" textAnchor="start" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.6))' }}>Population (Million)</text>
+              <text x={g.left + g.plotW / 2} y={g.top - g.popBand + 12} fontSize={fs(20)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5, filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.6))' }}>Population (Million)</text>
               {(() => {
                 const pts = data.map((d, i) => ({ x: g.xFor(i), y: g.yPopBarTop(d.population) }));
                 const linePath = 'M ' + pts.map((p) => `${p.x} ${p.y}`).join(' L ');
@@ -577,30 +665,109 @@ function WaterDemandChartV2({ scale = 1, full = false, fit = false, limited = fa
               })}
             </g>
 
-            {data.map((d, i) => (
-              <g key={`box-${i}`} className="wdg-col" style={{ animationDelay: `${i * 45}ms` }}>
-                {renderColumn(d, i)}
-              </g>
-            ))}
-
-            {/* Requirement trend: dot on each Req box top, joined by a sine wave */}
+            {/* Requirement trend: dot on each Req box top, joined by a sine wave.
+                Drawn before the columns so the Gap/labels render on top of it. */}
             {(() => {
               const reqPts = data
                 .map((d, i) => (d.hasDemand ? { x: g.xFor(i), y: g.y(d.netDemand) } : null))
                 .filter(Boolean);
               if (reqPts.length < 2) return null;
               const amp = Math.min(g.step * 0.07, 5);
+              const minY = Math.min(...reqPts.map((p) => p.y));
+              const cx = g.left + g.plotW / 2;
               return (
                 <g style={{ pointerEvents: 'none' }}>
                   <path d={smoothPath(wavyPoints(reqPts, amp))} fill="none" stroke={COL.requirement} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: `drop-shadow(0 0 5px ${COL.requirement})` }} />
                   {reqPts.map((p, i) => (
                     <circle key={`reqdot-${i}`} cx={p.x} cy={p.y} r="5" fill={COL.requirement} stroke="#04121f" strokeWidth="1.5" />
                   ))}
+                  <text x={cx} y={minY - fs(52)} fill={COL.requirement} fontSize={fs(20)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3.5 }}>Water Requirement (MAF)</text>
+                </g>
+              );
+            })()}
+
+            {data.map((d, i) => (
+              <g key={`box-${i}`} className="wdg-col" style={{ animationDelay: `${i * 45}ms` }}>
+                {renderColumn(d, i)}
+              </g>
+            ))}
+
+            {/* Line 2027–2047: availability + dam MAF (2 per 2-year box), plotted
+                on the water scale so it runs through the gap segment. */}
+            {(() => {
+              const rows = data
+                .map((d, i) => (!d.hasDemand || d.year < 2027 ? null : { d, i }))
+                .filter(Boolean);
+              if (rows.length < 2) return null;
+              const pts = rows.map(({ d, i }) => {
+                const val = Math.round(d.netAvail) + damAdd(d.year);
+                return { x: g.xFor(i), y: g.y(val), val, year: d.year };
+              });
+              const amp = Math.min(g.step * 0.07, 5);
+              return (
+                <g style={{ pointerEvents: 'none' }}>
+                  <path d={smoothPath(wavyPoints(pts, amp))} fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))' }} />
+                  {pts.map((p, i) => (
+                    <g key={`damline-${i}`}>
+                      <circle cx={p.x} cy={p.y} r="5" fill="#ffffff" stroke="#04121f" strokeWidth="1.5" />
+                      <text x={p.x} y={p.y - fs(12)} fontSize={fs(14)} fontWeight="800" textAnchor="middle" dominantBaseline="middle" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{p.val}</text>
+                    </g>
+                  ))}
+                </g>
+              );
+            })()}
+
+            {/* Box snapped above the Net Available boxes, spanning 2032–2047. */}
+            {(() => {
+              const years = data.map((d) => d.year);
+              const a = years.indexOf(2032);
+              const b = years.indexOf(2047);
+              if (a < 0 || b < 0) return null;
+              const left = g.xFor(a) - g.boxW / 2;
+              const right = g.xFor(b) + g.boxW / 2;
+              // Snap the box bottom to the top border of the Net Available boxes.
+              let topAvail = Infinity;
+              for (let j = a; j <= b; j++) topAvail = Math.min(topAvail, g.y(data[j].netAvail));
+              if (!isFinite(topAvail)) return null;
+              const bh = fs(21);
+              return (
+                <g style={{ pointerEvents: 'none' }}>
+                  <rect x={left} y={topAvail - bh} width={right - left} height={bh} rx={fs(4)} fill="#7CFC00" stroke="#0b6623" strokeWidth="2.2" style={{ filter: 'drop-shadow(0 0 4px rgba(124,252,0,0.7))' }} />
+                  <text x={(left + right) / 2} y={topAvail - bh / 2} fontSize={fs(16)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#000000' }}>2 x Dams, 7 MAF+</text>
                 </g>
               );
             })()}
 
             <text x={20} y={(g.top + g.bottom) / 2} className="wdg-secondary" fontSize="42" fontWeight="700" textAnchor="middle" dominantBaseline="middle" transform={`rotate(-90 20 ${(g.top + g.bottom) / 2})`}>WATER (MAF)</text>
+
+            {/* White boxes at the base, labelled "N Basins, M MAF". Two-year
+                spans starting 2027. */}
+            {(() => {
+              const bh = fs(22);
+              const baseY = g.bottom + fs(14);
+              const by = baseY - bh / 2;
+              const boxes = [];
+              const years = data.map((d) => d.year);
+              const lastYear = years[years.length - 1];
+              const span = (y0, y1) => {
+                const a = years.indexOf(y0);
+                const b = years.indexOf(y1);
+                if (a < 0 || b < 0) return;
+                const left = g.xFor(a) - g.boxW / 2;
+                const right = g.xFor(b) + g.boxW / 2;
+                boxes.push({ key: `box-${y0}`, x: left, w: right - left, cx: (left + right) / 2 });
+              };
+              // Two-year spans starting 2027: 2027-28, 2029-30, 2031-32, …
+              for (let y = 2027; y <= lastYear; y += 2) {
+                span(y, Math.min(y + 1, lastYear));
+              }
+              return boxes.map((b, k) => (
+                <g key={`base-${b.key}`}>
+                  <rect x={b.x} y={by} width={b.w} height={bh} rx={fs(3)} fill="#ffffff" stroke="#04121f" strokeWidth="1.2" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.7))' }} />
+                  <text x={b.cx} y={baseY} fontSize={fs(13)} fontWeight="800" textAnchor="middle" dominantBaseline="central" textLength={b.w - fs(8)} lengthAdjust="spacingAndGlyphs" style={{ fill: '#000000' }}>{`${9 * (k + 1)} Basins, ${2 * (k + 1)} MAF`}</text>
+                </g>
+              ));
+            })()}
 
             {data.map((d, i) => {
               const col = yc(i);
