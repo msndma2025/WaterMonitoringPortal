@@ -143,6 +143,10 @@ export const useMapStore = create((set, get) => ({
   showAgriModal: false,
   setShowAgriModal: (v) => set({ showAgriModal: v }),
 
+  // Storage vs Availability chart modal
+  showStorageModal: false,
+  setShowStorageModal: (v) => set({ showStorageModal: v }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),
