@@ -19,9 +19,17 @@ const SITE_IMAGES = [
 export default function StorageSitesSlider() {
   const [idx, setIdx] = useState(0);
   const [maxOpen, setMaxOpen] = useState(false);
+  const [paused, setPaused] = useState(false);
   const n = SITE_IMAGES.length;
   const cur = SITE_IMAGES[idx];
   const go = (d) => setIdx((i) => (i + d + n) % n);
+
+  // Auto-advance the inline carousel; pause while maximized or hovered.
+  useEffect(() => {
+    if (maxOpen || paused) return;
+    const t = setInterval(() => setIdx((i) => (i + 1) % n), 3500);
+    return () => clearInterval(t);
+  }, [maxOpen, paused, n]);
 
   // Keyboard control while the lightbox is open.
   useEffect(() => {
@@ -40,7 +48,12 @@ export default function StorageSitesSlider() {
     // Minimized view: the image fills the whole box (no heading); controls are
     // overlaid on top. Stop pointerdown from reaching the chart/modal drag
     // handlers underneath.
-    <div className="ssl" onPointerDown={(e) => e.stopPropagation()}>
+    <div
+      className="ssl"
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <button type="button" className="ssl-img-btn" onClick={() => setMaxOpen(true)} title="Click to maximize">
         <img src={cur.src} alt={`${cur.sites} potential storage basins`} draggable="false" />
         <span className="ssl-expand" aria-hidden="true"><i className="fas fa-expand" /></span>
