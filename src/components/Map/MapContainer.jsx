@@ -39,6 +39,7 @@ import DamLevelsModal from './DamLevelsModal';
 import IndDomModal from './IndDomModal';
 import AgriDemandModal from './AgriDemandModal';
 import StorageAvailabilityModal from './StorageAvailabilityModal';
+import SeasonalBalanceModal from './SeasonalBalanceModal';
 import ProjectionsModal from './ProjectionsModal';
 import './MapContainer.css';
 
@@ -2168,6 +2169,7 @@ const MapContainer = () => {
       <IndDomModal />
       <AgriDemandModal />
       <StorageAvailabilityModal />
+      <SeasonalBalanceModal />
       <SubBasinsModal />
       <DamLevelsModal />
       <div id="map-modal-portal" />

@@ -52,6 +52,14 @@ const GAP_OVERRIDE = { 2027: 26, 2029: 31, 2046: 44, 2047: 43 };
 // which also lifts that point up the chart).
 const PINK_EXTRA = { 2031: 6, 2040: 11, 2047: 16 };
 
+// Draw the informal-storage (basins) boxes AND the pink line on the main WATER
+// (MAF) axis (g.y), so each box is stacked directly on top of its formal-storage
+// column — from g.y(damTotal) up to g.y(damTotal + MAF) — and the line rides the
+// true cumulative tops (b.value). Set to false to revert to the old behaviour,
+// where boxes/line floated above the columns on their own incremental
+// ("difference") scale (pxPerMaf / b.topY).
+const STORAGE_ORIGINAL_SCALE = true;
+
 // Placeholder "S" segment values (year → value). Random for now — replace with
 // real data when it arrives.
 const S_VALUES = {
@@ -564,6 +572,10 @@ function WaterStorageChart({ scale = 1, full = false, fit = false, limited = fal
                 <rect width="9" height="9" fill={COL.gap} fillOpacity="0.12" />
                 <line x1="0" y1="0" x2="0" y2="9" stroke={COL.gap} strokeWidth="1.8" opacity="0.75" />
               </pattern>
+              <pattern id="v2-basins-hatch" width="8" height="8" patternUnits="userSpaceOnUse">
+                <rect width="8" height="8" fill="#ffd60a" />
+                <path d="M8,0 l-8,8" stroke="#1e63ff" strokeWidth="0.35" opacity="0.85" />
+              </pattern>
               <pattern id="v2-dam-crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
                 <rect width="8" height="8" fill="#7CFC00" fillOpacity="0.55" />
                 <path d="M0,0 l8,8 M8,0 l-8,8" stroke="#0b6623" strokeWidth="1.1" opacity="0.85" />
@@ -658,29 +670,53 @@ function WaterStorageChart({ scale = 1, full = false, fit = false, limited = fal
                 const right = g.xFor(b) + g.boxW / 2;
                 const total = damTotalFor(y0);
                 const maf = 2 * (k + 1);
-                // All boxes share baseY; height scaled by MAF.
-                const bottomY = baseY;
-                const topY = bottomY - maf * pxPerMaf;
+                // Original scale: top stays true (g.y(total + maf), so it rides the
+                // pink line / printed value); the bottom floats just above the
+                // column's net-available label (g.y(total) minus the label height +
+                // a small gap) so the dam bars and their values below stay visible.
+                // A minimum height keeps the smallest box (2 MAF) from collapsing.
+                // Difference scale: all boxes share baseY, height scaled by MAF.
+                const labelClear = fs(30) + fs(8);
+                // The first few boxes (small MAF) are too short for the two-line
+                // label, so give them a taller minimum height.
+                const minH = k < 3 ? fs(72) : fs(28);
+                const topY = STORAGE_ORIGINAL_SCALE ? g.y(total + maf) : baseY - maf * pxPerMaf;
+                const bottomY = STORAGE_ORIGINAL_SCALE
+                  ? Math.max(g.y(total) - labelClear, topY + minH)
+                  : baseY;
                 boxes.push({ key: `basins-${y0}`, x: left, w: right - left, cx: (left + right) / 2, k, maf, value: total + maf, topY, bottomY });
               };
               let k = 0;
               for (let y = 2027; y <= lastYear; y += 2) span(y, Math.min(y + 1, lastYear), k++);
               const amp = Math.min(g.step * 0.05, 4);
-              const linePts = boxes.map((b) => ({ x: b.cx, y: b.topY - fs(10) }));
+              const linePts = boxes.map((b) => ({
+                x: b.cx,
+                y: STORAGE_ORIGINAL_SCALE ? g.y(b.value) : b.topY - fs(10),
+              }));
               const linePath = smoothPath(wavyPoints(linePts, amp));
               return (
                 <>
                   {boxes.map((b) => (
                     <g key={b.key}>
-                      <rect x={b.x} y={b.topY} width={b.w} height={b.bottomY - b.topY} fill="url(#v2-gap-hatch)" stroke={COL.requirement} strokeWidth="1.4" />
-                      <text x={b.cx} y={(b.topY + b.bottomY) / 2} fontSize={fs(13)} fontWeight="800" textAnchor="middle" dominantBaseline="central" textLength={b.w - fs(8)} lengthAdjust="spacingAndGlyphs" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{`${9 * (b.k + 1)} Basins, ${2 * (b.k + 1)} MAF`}</text>
+                      <rect x={b.x} y={b.topY} width={b.w} height={b.bottomY - b.topY} fill="url(#v2-basins-hatch)" stroke="#b38f00" strokeWidth="1.4" />
+                      {(() => {
+                        const cy = (b.topY + b.bottomY) / 2;
+                        const mafText = `${2 * (b.k + 1)} MAF`;
+                        return (
+                          <>
+                            <text x={b.cx} y={cy - fs(15)} fontSize={fs(19)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{`${9 * (b.k + 1)} Basins`}</text>
+                            <ellipse cx={b.cx} cy={cy + fs(15)} rx={fs(mafText.length * 6.2 + 9)} ry={fs(18)} fill="#000000" stroke="#ff0000" strokeWidth={fs(4.5)} />
+                            <text x={b.cx} y={cy + fs(15)} fontSize={fs(19)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{mafText}</text>
+                          </>
+                        );
+                      })()}
                     </g>
                   ))}
-                  <path d={linePath} fill="none" stroke="#ff2d95" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={linePath} fill="none" stroke="#ff2d95" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
                   {boxes.map((b, idx) => (
                     <g key={`line-${b.key}`}>
                       <circle cx={b.cx} cy={linePts[idx].y} r={fs(4)} fill="#ff2d95" stroke="#04121f" strokeWidth="1.2" />
-                      <text x={b.cx} y={linePts[idx].y - fs(11)} fontSize={fs(13)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{b.value.toFixed(2)}</text>
+                      <text x={b.cx} y={linePts[idx].y - fs(idx === 0 ? 42 : idx % 2 === 0 ? 22 : 34)} fontSize={fs(22)} fontWeight="800" textAnchor="middle" dominantBaseline="central" style={{ fill: '#ffffff', paintOrder: 'stroke', stroke: '#04121f', strokeWidth: 3 }}>{b.value.toFixed(2)}</text>
                     </g>
                   ))}
                 </>

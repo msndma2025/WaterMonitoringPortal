@@ -147,6 +147,10 @@ export const useMapStore = create((set, get) => ({
   showStorageModal: false,
   setShowStorageModal: (v) => set({ showStorageModal: v }),
 
+  // Seasonal Water Balance & hazard timeline modal
+  showSeasonalModal: false,
+  setShowSeasonalModal: (v) => set({ showSeasonalModal: v }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),

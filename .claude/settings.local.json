@@ -38,7 +38,10 @@
       "Bash(node -e \"require\\('@babel/core'\\)\")",
       "Bash(node -e ' *)",
       "Bash(echo \"EXIT=$?\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell(& node_modules/.bin/vite build 2>&1)",
+      "PowerShell(& node_modules/.bin/vite.cmd build 2>&1)"
     ]
   }
 }
