@@ -41,7 +41,9 @@
       "Read(//tmp/**)",
       "PowerShell(npm run build 2>&1)",
       "PowerShell(& node_modules/.bin/vite build 2>&1)",
-      "PowerShell(& node_modules/.bin/vite.cmd build 2>&1)"
+      "PowerShell(& node_modules/.bin/vite.cmd build 2>&1)",
+      "PowerShell(Test-Path node_modules/.bin/vite.cmd; Test-Path node_modules/vite; \\(Get-ChildItem node_modules -ErrorAction SilentlyContinue | Measure-Object\\).Count)",
+      "PowerShell(node node_modules/vite/bin/vite.js build 2>&1)"
     ]
   }
 }

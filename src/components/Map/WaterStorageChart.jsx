@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import StorageSitesSlider from './StorageSitesSlider';
 import './WaterDemandChartV2.css';
 
 // Spine source: Population + total Projected Water Availability (all years).
@@ -747,6 +748,26 @@ function WaterStorageChart({ scale = 1, full = false, fit = false, limited = fal
             {data.map((_, i) => (
               <rect key={`hit-${i}`} x={g.left + i * g.step} y={g.top} width={g.step} height={g.bottom - g.top} fill="transparent" onPointerEnter={() => setHover(i)} />
             ))}
+
+            {/* Potential-storage-sites carousel, floated in the empty area above
+                the 2026–2031 dam bars. Rendered as a foreignObject so it stays
+                anchored to those columns and scales with the chart. */}
+            {(() => {
+              const firstIdx = data.findIndex((d) => d.year >= 2026 && d.year <= 2031);
+              let lastIdx = -1;
+              data.forEach((d, i) => { if (d.year >= 2026 && d.year <= 2031) lastIdx = i; });
+              if (firstIdx < 0 || lastIdx < 0) return null;
+              const x0 = g.boxLeftFor(firstIdx);
+              const x1 = g.boxLeftFor(lastIdx) + g.boxW;
+              const foW = Math.max(160, x1 - x0);
+              const foY = g.top + fs(12);
+              const foH = Math.max(150, g.plotH * 0.42);
+              return (
+                <foreignObject x={x0} y={foY} width={foW} height={foH} style={{ overflow: 'visible' }}>
+                  <StorageSitesSlider />
+                </foreignObject>
+              );
+            })()}
 
             {hd && (
               <foreignObject x={ttLeft} y={g.top + 6} width={ttW} height={340} style={{ overflow: 'visible', pointerEvents: 'none' }}>
