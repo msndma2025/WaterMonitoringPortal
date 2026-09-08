@@ -8,7 +8,7 @@ import FontSizeControl from '../Map/FontSizeControl';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, setShowIndDomModal, setShowAgriModal, setShowStorageModal, setShowSeasonalModal, sidebarFontScale } = useMapStore();
+  const { layerVisibility, toggleLayer, expandedGroups, toggleGroup, setShowInflowsModal, setShowLossesModal, setShowInflowsCompModal, setShowProjectionsModal, setShowMonthlyInflowsModal, setShowIndDomModal, setShowAgriModal, setShowStorageModal, setShowSeasonalModal, setShowLiveInflowsModal, sidebarFontScale } = useMapStore();
   const [showAbout, setShowAbout] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
 
@@ -22,6 +22,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { id: 'agri',        label: 'Demand vs Availability',           icon: 'fa-chart-area',   open: setShowAgriModal },
     { id: 'storage',     label: 'Storage vs Availability',          icon: 'fa-database',     open: setShowStorageModal },
     { id: 'seasonal',    label: 'Seasonal Water Balance',           icon: 'fa-cloud-showers-heavy', open: setShowSeasonalModal },
+    { id: 'liveinflows', label: 'Live River Inflows',               icon: 'fa-satellite-dish', open: setShowLiveInflowsModal },
   ];
 
   const sidebarVariants = {

@@ -151,6 +151,10 @@ export const useMapStore = create((set, get) => ({
   showSeasonalModal: false,
   setShowSeasonalModal: (v) => set({ showSeasonalModal: v }),
 
+  // Live River Inflows / Outflows (Hydro Analytics API) modal
+  showLiveInflowsModal: false,
+  setShowLiveInflowsModal: (v) => set({ showLiveInflowsModal: v }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),

@@ -41,6 +41,7 @@ import AgriDemandModal from './AgriDemandModal';
 import StorageAvailabilityModal from './StorageAvailabilityModal';
 import SeasonalBalanceModal from './SeasonalBalanceModal';
 import ProjectionsModal from './ProjectionsModal';
+import LiveInflowsModal from './LiveInflowsModal';
 import './MapContainer.css';
 
 // Track loaded layers globally to avoid refetching
@@ -724,7 +725,7 @@ const MapContainer = () => {
     TIME_SERIES.evapotranspiration.forEach(year => {
       const sourceId = `et-${year}`;
       const layerId = `et-${year}`;
-      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoring}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:ET_${year}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
+      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoringWV}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:ET_${year}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
 
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, { type: 'raster', tiles: [wmsUrl], tileSize: 256 });
@@ -746,7 +747,7 @@ const MapContainer = () => {
     TIME_SERIES.precipitation.forEach(period => {
       const sourceId = `precipitation-${period.id}`;
       const layerId = `precipitation-${period.id}`;
-      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoring}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:${period.layer}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
+      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoringWV}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:${period.layer}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
 
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, { type: 'raster', tiles: [wmsUrl], tileSize: 256 });
@@ -768,7 +769,7 @@ const MapContainer = () => {
     TIME_SERIES.snowCover.forEach(year => {
       const sourceId = `snow-${year}`;
       const layerId = `snow-${year}`;
-      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoring}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:SnowCover_${year}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
+      const wmsUrl = `${GEOSERVER_CONFIG.waterMonitoringWV}/wms?service=WMS&version=1.1.1&request=GetMap&layers=water_monitoring:SnowCover_${year}&styles=&format=image/png&transparent=true&exceptions=application/vnd.ogc.se_inimage&tiled=true&srs=EPSG:3857&bbox={bbox-epsg-3857}&width=256&height=256`;
 
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, { type: 'raster', tiles: [wmsUrl], tileSize: 256 });
@@ -1116,8 +1117,9 @@ const MapContainer = () => {
   // Setup Monsoon Basin layer (local GeoJSON - points, classified by Priority)
   const setupMonsoonBasin = useCallback(async (map) => {
     try {
-      const resp = await fetch('/Final%20sites%20along%20the%20river.geojson');
-      if (resp.ok) {
+      const resp = await fetch('/final-sites-along-the-river.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch final-sites-along-the-river.geojson: ${resp.status}`);
+      {
         const geojson = await resp.json();
         if (!map.getSource('monsoon-basin-source')) {
           map.addSource('monsoon-basin-source', { type: 'geojson', data: geojson });
@@ -1237,8 +1239,9 @@ const MapContainer = () => {
   // Setup Monsoon Basin 2 layer (local GeoJSON - points)
   const setupMonsoonBasin2 = useCallback(async (map) => {
     try {
-      const resp = await fetch('/all%20sites%20final.geojson');
-      if (resp.ok) {
+      const resp = await fetch('/all-sites-final.geojson');
+      if (!resp.ok) throw new Error(`Failed to fetch all-sites-final.geojson: ${resp.status}`);
+      {
         const geojson = await resp.json();
         if (!map.getSource('monsoon-basin2-source')) {
           map.addSource('monsoon-basin2-source', { type: 'geojson', data: geojson });
@@ -2172,6 +2175,7 @@ const MapContainer = () => {
       <SeasonalBalanceModal />
       <SubBasinsModal />
       <DamLevelsModal />
+      <LiveInflowsModal />
       <div id="map-modal-portal" />
 
       {activeLayerOrder.length >= 2 && (

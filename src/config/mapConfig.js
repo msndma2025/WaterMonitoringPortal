@@ -20,6 +20,10 @@ export const MAP_CONFIG = {
 export const GEOSERVER_CONFIG = {
   baseUrl: '/geoserver',
   waterMonitoring: '/geoserver/water_monitoring',
+  // Water-variable rasters (ET / precipitation / snow cover) live on a separate
+  // geoserver, proxied via /wv-geoserver (see vite.config.js). The path must not
+  // start with "/geoserver" to avoid colliding with the main /geoserver proxy.
+  waterMonitoringWV: '/wv-geoserver/water_monitoring',
   waterPortalWS: '/geoserver/WaterPortal_WS',
   pakBoundaries: 'http://172.18.1.4:8080/geoserver',
   coastal: 'http://172.18.1.151:8080/geoserver/Costal',
