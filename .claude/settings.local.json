@@ -43,7 +43,26 @@
       "PowerShell(& node_modules/.bin/vite build 2>&1)",
       "PowerShell(& node_modules/.bin/vite.cmd build 2>&1)",
       "PowerShell(Test-Path node_modules/.bin/vite.cmd; Test-Path node_modules/vite; \\(Get-ChildItem node_modules -ErrorAction SilentlyContinue | Measure-Object\\).Count)",
-      "PowerShell(node node_modules/vite/bin/vite.js build 2>&1)"
+      "PowerShell(node node_modules/vite/bin/vite.js build 2>&1)",
+      "Bash(cd \"/c/Users/1069muddasir/Desktop/WaterMonitoringPortal1/WaterMonitoringPortal\" && echo \"=== src ===\" && find src -type f | head -60 && echo \"=== server ===\" && find server -type f | head -40)",
+      "Read(//c/c/Users/1069muddasir/Desktop/WaterMonitoringPortal1/WaterMonitoringPortal/**)",
+      "PowerShell(node node_modules/eslint/bin/eslint.js src/services/hydroApi.js src/components/Map/LiveInflowsModal.jsx src/store/mapStore.js src/components/Layout/Sidebar.jsx vite.config.js 2>&1)",
+      "PowerShell($f = @\\('src/services/hydroApi.js','src/components/Map/LiveInflowsModal.jsx'\\); foreach \\($x in $f\\) { node node_modules/esbuild/bin/esbuild $x --loader:.jsx=jsx --loader:.js=jsx --bundle=false --format=esm > $null; if \\($?\\) { Write-Output \"OK: $x\" } })",
+      "Bash(curl -s -m 6 \"http://172.18.7.35:8000/proxy_api_daily/api/history?name=Kotri&days=3\")",
+      "Bash(curl -s -m 8 \"http://172.18.7.35:8000/proxy_api_daily/api/history?name=Kotri&days=3\")",
+      "Bash(python -c \"import sys,json;d=json.load\\(sys.stdin\\);print\\({k:\\(type\\(v\\).__name__\\) for k,v in d.items\\(\\)}\\);print\\('sample outflow:',d.get\\('outflow',[]\\)[:1]\\);print\\('name:',d.get\\('name'\\),'points:',d.get\\('points'\\),'source:',d.get\\('source'\\),'success:',d.get\\('success'\\),'start:',d.get\\('start_date'\\)\\)\")",
+      "Bash(curl -s -m 12 \"http://172.18.7.35:8000/proxy_api_daily/api/history?name=Kotri&start_date=2026-06-01&end_date=2026-09-30\")",
+      "Bash(curl -s -m 12 \"http://172.18.7.35:8000/proxy_api_daily/api/history?name=Kotri&start_date=2026-06-01&end_date=2026-09-30\" -o \"C:/tmp/kotri.json\")",
+      "Bash(cd \"/c/Users/1069muddasir/Desktop/WaterMonitoringPortal1/WaterMonitoringPortal\" && rm -f src/components/Map/RimsCumulativeModal.jsx && echo removed)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('public/Final sites along the river.geojson'\\)\\); print\\('features:', len\\(d.get\\('features',[]\\)\\)\\); f=d['features'][0]; print\\('geom type:', f['geometry']['type']\\); print\\('sample props keys:', list\\(f['properties'].keys\\(\\)\\)[:12]\\); print\\('sample coords:', f['geometry']['coordinates']\\)\")",
+      "Bash(cp \"Final sites along the river.geojson\" \"final-sites-along-the-river.geojson\")",
+      "Bash(cp \"all sites final.geojson\" \"all-sites-final.geojson\")",
+      "Bash(curl -s -m 6 -o /dev/null -w \"%{http_code}\\\\n\" \"http://172.18.1.109:8080/geoserver/web/\")",
+      "Bash(curl -s -m 8 -o /dev/null -w \"%{http_code}\\\\n\" \"http://172.17.192.100:8080/geoserver/water_monitoring/wms?service=WMS&version=1.1.1&request=GetCapabilities\")"
+    ],
+    "additionalDirectories": [
+      "c:\\c\\Users\\1069muddasir\\Desktop\\WaterMonitoringPortal1\\WaterMonitoringPortal\\src\\components\\Map",
+      "c:\\Users\\1069muddasir\\.claude\\projects\\c--Users-1069muddasir-Desktop-WaterMonitoringPortal1-WaterMonitoringPortal\\memory"
     ]
   }
 }

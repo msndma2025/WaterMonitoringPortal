@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import {
@@ -9,6 +9,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  LabelList,
 } from 'recharts';
 import { useMapStore } from '../../store/mapStore';
 import './InflowsCompModal.css';
@@ -19,6 +20,9 @@ const SERIES = [
   { key: 'mangla',   name: 'Mangla',   color: '#34d399' },
   { key: 'combined', name: 'Combined', color: '#fbbf24' },
 ];
+
+// Rows are keyed "Apr-15" (MonAbbr-YY) → calendar year (2000 + YY).
+const yearOf = (row) => 2000 + parseInt(String(row.month).split('-')[1], 10);
 
 // Parse the CSV directly — it has a multi-line quoted header, so we only
 // keep rows shaped like "Apr-15,<num>,<num>,<num>".
@@ -59,6 +63,18 @@ const ChartTooltip = ({ active, payload, label, visible }) => {
   );
 };
 
+const YearSelect = ({ year, years, onChange }) => (
+  <label className="dl-range">
+    <span className="dl-range-label">Year</span>
+    <select className="dl-range-select" value={year ?? ''} onChange={(e) => onChange(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
+      {years.map((y) => (
+        <option key={y} value={y}>{`Jan – Dec ${y}`}</option>
+      ))}
+      <option value="all">All years (Apr 2015 – Mar 2025)</option>
+    </select>
+  </label>
+);
+
 const SeriesToggles = ({ visible, onToggle }) => (
   <div className="dl-toggles">
     {SERIES.map((s) => {
@@ -80,9 +96,30 @@ const SeriesToggles = ({ visible, onToggle }) => (
   </div>
 );
 
+// White-pill data label drawn on top of each point.
+const makeValueLabel = (color) => (props) => {
+  const { x, y, value } = props;
+  if (value == null || isNaN(value)) return null;
+  const label = Number(value).toFixed(2);
+  const fs = 12.5;
+  const padX = 6;
+  const h = fs + 8;
+  const w = label.length * fs * 0.6 + padX * 2;
+  const cx = x;
+  const cy = (typeof y === 'number' ? y : 0) - 15;
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      <rect x={cx - w / 2} y={cy - h / 2} width={w} height={h} rx={h / 2} fill="#ffffff" stroke={color} strokeWidth={1.6} />
+      <text x={cx} y={cy + 0.5} textAnchor="middle" dominantBaseline="central" fill="#0a1220" fontSize={fs} fontWeight={800}>
+        {label}
+      </text>
+    </g>
+  );
+};
+
 const Chart = ({ data, height, visible }) => (
   <ResponsiveContainer width="100%" height={height}>
-    <AreaChart data={data} margin={{ top: 12, right: 18, left: -6, bottom: 4 }}>
+    <AreaChart data={data} margin={{ top: 36, right: 34, left: 18, bottom: 14 }}>
       <defs>
         {SERIES.map((s) => (
           <linearGradient key={s.key} id={`dl-grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
@@ -91,23 +128,26 @@ const Chart = ({ data, height, visible }) => (
           </linearGradient>
         ))}
       </defs>
-      <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
+      <CartesianGrid strokeDasharray="3 6" stroke="rgba(148,163,184,0.12)" vertical={false} />
       <XAxis
         dataKey="month"
-        tick={{ fill: '#94a3b8', fontSize: 10 }}
+        tick={{ fill: '#dbe8ff', fontSize: 15, fontWeight: 800 }}
         tickLine={false}
-        axisLine={{ stroke: 'rgba(148,163,184,0.2)' }}
-        interval={5}
-        angle={-40}
+        tickMargin={12}
+        axisLine={{ stroke: 'rgba(120,180,255,0.45)', strokeWidth: 1.5 }}
+        interval="preserveStartEnd"
+        minTickGap={40}
+        angle={-35}
         textAnchor="end"
-        height={48}
+        height={84}
       />
       <YAxis
-        tick={{ fill: '#94a3b8', fontSize: 11 }}
+        tick={{ fill: '#dbe8ff', fontSize: 15, fontWeight: 800 }}
         tickLine={false}
-        axisLine={{ stroke: 'rgba(148,163,184,0.2)' }}
-        width={44}
-        label={{ value: 'MAF', angle: -90, position: 'insideLeft', fill: '#64748b', fontSize: 11, dy: 20 }}
+        tickMargin={8}
+        axisLine={{ stroke: 'rgba(120,180,255,0.45)', strokeWidth: 1.5 }}
+        width={92}
+        label={{ value: 'MAF', angle: -90, position: 'insideLeft', fill: '#9db6e0', fontSize: 14, fontWeight: 900, letterSpacing: 1.5, dx: 6, dy: 20 }}
       />
       <Tooltip content={<ChartTooltip visible={visible} />} />
       {SERIES.filter((s) => visible[s.key]).map((s) => (
@@ -117,12 +157,14 @@ const Chart = ({ data, height, visible }) => (
           dataKey={s.key}
           name={s.name}
           stroke={s.color}
-          strokeWidth={2}
+          strokeWidth={4.5}
           fill={`url(#dl-grad-${s.key})`}
           dot={false}
-          activeDot={{ r: 4, strokeWidth: 0 }}
+          activeDot={{ r: 6, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${s.color})` } }}
           animationDuration={900}
-        />
+        >
+          <LabelList dataKey={s.key} content={makeValueLabel(s.color)} />
+        </Area>
       ))}
     </AreaChart>
   </ResponsiveContainer>
@@ -132,13 +174,32 @@ const DamLevelsModal = () => {
   const { layerVisibility } = useMapStore();
   const on = layerVisibility.damLevels;
   const [data, setData] = useState([]);
-  const [isMaximized, setIsMaximized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(true); // open full-width by default
   const [dismissed, setDismissed] = useState(false);
   const [visible, setVisible] = useState({ tarbela: true, mangla: true, combined: true });
+  const [year, setYear] = useState(null); // selected calendar year (set once data loads)
   const dragControls = useDragControls();
 
   const toggleSeries = (key) =>
     setVisible((v) => ({ ...v, [key]: !v[key] }));
+
+  // Distinct calendar years present in the data, ascending.
+  const years = useMemo(() => [...new Set(data.map(yearOf))].sort((a, b) => a - b), [data]);
+
+  // Default to the most recent complete (12-month) year, else the latest year.
+  useEffect(() => {
+    if (!years.length) return;
+    setYear((prev) => {
+      if (prev != null && (prev === 'all' || years.includes(prev))) return prev;
+      const complete = years.filter((y) => data.filter((r) => yearOf(r) === y).length >= 12);
+      return complete.length ? complete[complete.length - 1] : years[years.length - 1];
+    });
+  }, [years, data]);
+
+  const chartData = useMemo(
+    () => (year == null || year === 'all' ? data : data.filter((r) => yearOf(r) === year)),
+    [data, year],
+  );
 
   useEffect(() => {
     fetch('/Dam_Levels_Monthly_Averages.csv')
@@ -148,7 +209,7 @@ const DamLevelsModal = () => {
   }, []);
 
   useEffect(() => {
-    if (on) setDismissed(false);
+    if (on) { setDismissed(false); setIsMaximized(true); }
   }, [on]);
 
   useEffect(() => {
@@ -197,8 +258,11 @@ const DamLevelsModal = () => {
               {header(false)}
               <div className="dl-body">
                 <div className="dl-subtitle">Monthly average live storage (MAF) — Tarbela, Mangla &amp; combined</div>
-                <SeriesToggles visible={visible} onToggle={toggleSeries} />
-                <Chart data={data} height={300} visible={visible} />
+                <div className="dl-controls">
+                  <SeriesToggles visible={visible} onToggle={toggleSeries} />
+                  <YearSelect year={year} years={years} onChange={setYear} />
+                </div>
+                <Chart data={chartData} height={300} visible={visible} />
               </div>
             </motion.div>
           )}
@@ -220,8 +284,13 @@ const DamLevelsModal = () => {
                 {header(true)}
                 <div className="dl-body dl-body-full">
                   <div className="dl-subtitle">Monthly average live storage (MAF) — Tarbela, Mangla &amp; combined</div>
-                  <SeriesToggles visible={visible} onToggle={toggleSeries} />
-                  <Chart data={data} height={560} visible={visible} />
+                  <div className="dl-controls">
+                    <SeriesToggles visible={visible} onToggle={toggleSeries} />
+                    <YearSelect year={year} years={years} onChange={setYear} />
+                  </div>
+                  <div className="dl-chart-fill">
+                    <Chart data={chartData} height="100%" visible={visible} />
+                  </div>
                 </div>
               </div>
             </motion.div>

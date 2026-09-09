@@ -5,7 +5,21 @@
       "Bash(ls -la polygon_sites_monsoon_basin.geojson)",
       "Bash(python -c ' *)",
       "Bash(ls -la priority_sites_monsoon_basin.geojson)",
-      "Bash(ls -la glacial_basins.geojson)"
+      "Bash(ls -la glacial_basins.geojson)",
+      "Bash(curl -s \"https://cdn.jsdelivr.net/gh/Ibrahom1/hydrosituation@main/latest.json\")",
+      "Read(//c/c/tmp/**)",
+      "Bash(curl -s \"https://cdn.jsdelivr.net/gh/Ibrahom1/hydrosituation@main/latest.json\" -o latest.json)",
+      "PowerShell(npx eslint src/components/Map/LocationInflowsModal.jsx src/components/Map/LiveInflowsModal.jsx)",
+      "PowerShell(npm run lint 2>&1)",
+      "Bash(grep -E \"^vite$|^eslint$\")",
+      "Bash(./node_modules/.bin/eslint src/components/Map/LocationInflowsModal.jsx src/components/Map/LiveInflowsModal.jsx)",
+      "Bash(node -e ' *)",
+      "Bash(node -e 'const {parse}=require\\(\"@babel/parser\"\\);const fs=require\\(\"fs\"\\);try{parse\\(fs.readFileSync\\(\"src/components/Map/MapContainer.jsx\",\"utf8\"\\),{sourceType:\"module\",plugins:[\"jsx\"]}\\);console.log\\(\"OK\"\\);}catch\\(e\\){console.log\\(\"FAIL\",e.message\\);}')",
+      "Bash(node -e 'const {parse}=require\\(\"@babel/parser\"\\);const fs=require\\(\"fs\"\\);for\\(const f of [\"src/components/Map/MapContainer.jsx\",\"src/services/inflowLocations.js\"]\\){try{parse\\(fs.readFileSync\\(f,\"utf8\"\\),{sourceType:\"module\",plugins:[\"jsx\"]}\\);console.log\\(\"OK  \",f\\);}catch\\(e\\){console.log\\(\"FAIL\",f,e.message\\);}}')",
+      "Bash(ls -la barrage_icon_red.png)",
+      "Bash(node -e 'const {parse}=require\\(\"@babel/parser\"\\);const fs=require\\(\"fs\"\\);try{parse\\(fs.readFileSync\\(\"src/components/Map/MapContainer.jsx\",\"utf8\"\\),{sourceType:\"module\",plugins:[\"jsx\"]}\\);console.log\\(\"PARSE OK\"\\);}catch\\(e\\){console.log\\(\"FAIL\",e.message\\);}')",
+      "Bash(node -e 'const {parse}=require\\(\"@babel/parser\"\\);const fs=require\\(\"fs\"\\);try{parse\\(fs.readFileSync\\(\"src/components/Map/LiveInflowsModal.jsx\",\"utf8\"\\),{sourceType:\"module\",plugins:[\"jsx\"]}\\);console.log\\(\"PARSE OK\"\\);}catch\\(e\\){console.log\\(\"FAIL\",e.message\\);}')",
+      "Bash(node -e 'const {parse}=require\\(\"@babel/parser\"\\);const fs=require\\(\"fs\"\\);try{parse\\(fs.readFileSync\\(\"src/components/Layout/Sidebar.jsx\",\"utf8\"\\),{sourceType:\"module\",plugins:[\"jsx\"]}\\);console.log\\(\"PARSE OK\"\\);}catch\\(e\\){console.log\\(\"FAIL\",e.message\\);}')"
     ]
   }
 }

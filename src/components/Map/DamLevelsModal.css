@@ -12,11 +12,22 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
-.dl-fullscreen-inner {
-  width: 88vw;
-  max-width: 1100px;
+.dl-chart-fill {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Full-viewport, edge-to-edge (override the 780px cap on .ic-fullscreen-inner) */
+.ic-fullscreen-inner.dl-fullscreen-inner {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+  border-radius: 0;
 }
 
 .dl-subtitle {
@@ -27,12 +38,54 @@
   opacity: 0.85;
 }
 
+/* ── Controls row (series chips + range select) ── */
+.dl-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0 0.4rem 0.55rem;
+}
+
+.dl-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.dl-range-label {
+  color: #9db6e0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dl-range-select {
+  background: rgba(15, 39, 68, 0.7);
+  border: 1px solid rgba(120, 180, 255, 0.4);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.32rem 0.6rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dl-range-select:hover { border-color: rgba(120, 180, 255, 0.75); }
+.dl-range-select:focus { border-color: #7dd3fc; }
+.dl-range-select option { background: #0a1220; color: #e2e8f0; }
+
 /* ── Series toggle chips ── */
 .dl-toggles {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin: 0 0 0.55rem 0.4rem;
+  margin: 0;
 }
 
 .dl-chip {
