@@ -1,0 +1,51 @@
+/* Live Inflows by Location — chart modal opened from a main-map station box.
+   Reuses LiveInflowsModal.css for the floating / maximized shells; this file only
+   adds the current-reading snapshot row and a comfortable floating width. */
+
+.lim-modal {
+  min-width: 0;
+  width: min(700px, 94vw);
+  max-width: 94vw;
+}
+
+.lim-snapshot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px 14px;
+  margin: 2px 0 10px;
+  font-size: 13.5px;
+  color: #c9dbff;
+  font-weight: 700;
+}
+.lim-snap-item { display: inline-flex; align-items: center; gap: 6px; }
+.lim-snap-item b { color: #eaf2ff; }
+.lim-snap-item .fas { color: #7df9ff; font-size: 12px; }
+.lim-snap-time { color: #8ea6cc; font-weight: 600; }
+
+.lim-snap-kind {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #0a1220;
+  background: #7df9ff;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.lim-badge {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(120, 180, 255, 0.18);
+  color: #dbe8ff;
+  border: 1px solid rgba(120, 180, 255, 0.3);
+}
+.lim-badge-normal { background: rgba(52, 255, 158, 0.16); color: #34ff9e; border-color: rgba(52, 255, 158, 0.4); }
+.lim-badge-low { background: rgba(255, 210, 26, 0.16); color: #ffd21a; border-color: rgba(255, 210, 26, 0.4); }
+.lim-badge-high,
+.lim-badge-flood { background: rgba(255, 43, 214, 0.16); color: #ff6bdf; border-color: rgba(255, 43, 214, 0.4); }

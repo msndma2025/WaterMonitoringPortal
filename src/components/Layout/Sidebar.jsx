@@ -23,6 +23,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { id: 'storage',     label: 'Storage vs Availability',          icon: 'fa-database',     open: setShowStorageModal },
     { id: 'seasonal',    label: 'Seasonal Water Balance',           icon: 'fa-cloud-showers-heavy', open: setShowSeasonalModal },
     { id: 'liveinflows', label: 'Live River Inflows',               icon: 'fa-satellite-dish', open: setShowLiveInflowsModal },
+    { id: 'locinflows',  label: 'Live Inflow Stations (map)',       icon: 'fa-map-location-dot', isToggle: true, layerId: 'liveInflowStations' },
   ];
 
   const sidebarVariants = {
@@ -95,19 +96,27 @@ const Sidebar = ({ isOpen, onClose }) => {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.22, ease: 'easeOut' }}
                 >
-                  {reports.map((r) => (
-                    <motion.button
-                      key={r.id}
-                      className={`report-btn report-btn-${r.id}`}
-                      onClick={() => { r.open(true); onClose(); }}
-                      whileHover={{ scale: 1.015 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <span className="report-btn-icon"><i className={`fas ${r.icon}`}></i></span>
-                      <span className="report-btn-label">{r.label}</span>
-                      <i className="fas fa-chevron-right report-btn-go"></i>
-                    </motion.button>
-                  ))}
+                  {reports.map((r) => {
+                    const active = r.isToggle && layerVisibility[r.layerId];
+                    return (
+                      <motion.button
+                        key={r.id}
+                        className={`report-btn report-btn-${r.id}${active ? ' active' : ''}`}
+                        onClick={() => {
+                          if (r.isToggle) { toggleLayer(r.layerId); }
+                          else { r.open(true); onClose(); }
+                        }}
+                        whileHover={{ scale: 1.015 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className="report-btn-icon"><i className={`fas ${r.icon}`}></i></span>
+                        <span className="report-btn-label">{r.label}</span>
+                        {r.isToggle
+                          ? <i className={`fas fa-${active ? 'eye' : 'eye-slash'} report-btn-go`}></i>
+                          : <i className="fas fa-chevron-right report-btn-go"></i>}
+                      </motion.button>
+                    );
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>

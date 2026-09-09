@@ -28,7 +28,7 @@ import './InflowsCompModal.css';
 import './LiveInflowsModal.css';
 
 // Neon palette
-const SERIES = [
+export const SERIES = [
   { key: 'inflow',  name: 'Inflow',  color: '#00f0ff' },
   { key: 'outflow', name: 'Outflow', color: '#ff2bd6' },
 ];
@@ -71,7 +71,7 @@ const YEAR_RANGES = Array.from({ length: 10 }, (_, i) => {
 });
 
 // Time ranges. `build` returns params for getHistory(); `custom` is handled separately.
-const RANGES = [
+export const RANGES = [
   { id: '7d',   label: 'Last 7 days',   build: () => ({ days: 7 }) },
   { id: '30d',  label: 'Last 30 days',  build: () => ({ days: 30 }) },
   { id: '90d',  label: 'Last 90 days',  build: () => ({ days: 90 }) },
@@ -81,16 +81,16 @@ const RANGES = [
   { id: 'custom', label: 'Custom range…', custom: true },
 ];
 
-const CHART_TYPES = [
+export const CHART_TYPES = [
   { id: 'area',   label: 'Area chart' },
   { id: 'column', label: 'Column chart' },
   { id: 'line',   label: 'Line chart' },
 ];
 
-const TODAY = new Date().toISOString().slice(0, 10);
+export const TODAY = new Date().toISOString().slice(0, 10);
 
 // "YYYY-MM" -> "Sep 2026"
-const fmtMonth = (x) => {
+export const fmtMonth = (x) => {
   const m = /^(\d{4})-(\d{2})$/.exec(String(x));
   if (!m) return String(x);
   return new Date(+m[1], +m[2] - 1, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -99,7 +99,7 @@ const fmtMonth = (x) => {
 const fmtMAF = (v) => (v == null || isNaN(v) ? '—' : v.toFixed(2));
 
 // Aggregate inflow/outflow into monthly-MAF chart rows keyed by "YYYY-MM".
-function mergeMonthly(inflow = [], outflow = []) {
+export function mergeMonthly(inflow = [], outflow = []) {
   const byMonth = new Map();
   const put = (arr, key) => {
     seriesToMonthlyMAF(arr).forEach(({ month, maf }) => {
@@ -158,7 +158,7 @@ const makeValueLabel = (color) => (props) => {
   );
 };
 
-const Chart = ({ data, height, type, keys, series = SERIES, yLabel = 'MAF / MONTH', refLine = null }) => {
+export const Chart = ({ data, height, type, keys, series = SERIES, yLabel = 'MAF / MONTH', refLine = null }) => {
   const seriesByKey = Object.fromEntries(series.map((s) => [s.key, s]));
   const refLineEl = refLine ? (
     <ReferenceLine
@@ -423,12 +423,6 @@ const LiveInflowsModal = () => {
   }, [isRims, resp, rimsSelected]);
   const hasData = status === 'ok' && chartData.length > 0;
 
-  // Combined minimum need (MAF) of the currently selected RIMS stations.
-  const rimsMinNeed = useMemo(
-    () => RIMS.filter((r) => rimsSelected.has(r.name)).reduce((s, r) => s + (r.minNeed || 0), 0),
-    [rimsSelected],
-  );
-
   const visibleKeys = useMemo(
     () => (filter === 'both' ? series.map((s) => s.key) : [filter]),
     [filter, isRims], // eslint-disable-line react-hooks/exhaustive-deps
@@ -678,9 +672,10 @@ const LiveInflowsModal = () => {
                 series={series}
                 yLabel="MAF / MONTH"
                 refLine={
-                  isRims
-                    ? (rimsMinNeed > 0 ? { y: +rimsMinNeed.toFixed(2), label: 'Minimum need' } : null)
-                    : (station === 'Kotri' ? { y: 0.3, label: 'Minimum need' } : null)
+                  // Minimum-need line applies to Kotri only (not the RIMS aggregate).
+                  !isRims && station === 'Kotri'
+                    ? { y: 0.3, label: 'Minimum need', color: '#39ff14' }
+                    : null
                 }
               />
             </motion.div>

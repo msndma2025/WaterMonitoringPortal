@@ -19,6 +19,7 @@ import {
   buildWfsUrl
 } from '../../config/mapConfig';
 import { useMapStore } from '../../store/mapStore';
+import { fetchInflowLocations, locationsToGeoJSON } from '../../services/inflowLocations';
 import { 
   ongoingDamsPakistan, 
   futureDams, 
@@ -42,6 +43,7 @@ import StorageAvailabilityModal from './StorageAvailabilityModal';
 import SeasonalBalanceModal from './SeasonalBalanceModal';
 import ProjectionsModal from './ProjectionsModal';
 import LiveInflowsModal from './LiveInflowsModal';
+import LocationInflowsModal from './LocationInflowsModal';
 import './MapContainer.css';
 
 // Track loaded layers globally to avoid refetching
@@ -1644,6 +1646,119 @@ const MapContainer = () => {
     }
   }, []);
 
+  // Setup Live Inflow Stations layer (fetched dam/headwork snapshot -> clickable markers).
+  // Clicking a station opens the monthly-MAF chart modal for it.
+  const setupLiveInflowStations = useCallback(async (map) => {
+    if (map.getSource('live-inflow-stations-source')) return;
+
+    // Red barrage marker icon (shared by all stations; key ones render larger).
+    await new Promise((resolve) => {
+      if (map.hasImage('barrage-icon')) return resolve();
+      map.loadImage('/barrage_icon_red_small.png', (err, image) => {
+        if (!err && image && !map.hasImage('barrage-icon')) map.addImage('barrage-icon', image);
+        resolve();
+      });
+    });
+
+    try {
+      const locations = await fetchInflowLocations();
+      map.addSource('live-inflow-stations-source', {
+        type: 'geojson',
+        data: locationsToGeoJSON(locations),
+      });
+
+      // Pulsing ring behind the key (highlighted) stations — animated below.
+      map.addLayer({
+        id: 'live-inflow-stations-pulse',
+        type: 'circle',
+        source: 'live-inflow-stations-source',
+        filter: ['==', ['get', 'highlight'], true],
+        layout: { visibility: 'none' },
+        paint: {
+          'circle-radius': 12,
+          'circle-color': '#fbbf24',
+          'circle-opacity': 0.35,
+          'circle-stroke-color': '#fde68a',
+          'circle-stroke-width': 2,
+          'circle-stroke-opacity': 0.8,
+        },
+      });
+
+      map.addLayer({
+        id: 'live-inflow-stations-layer',
+        type: 'symbol',
+        source: 'live-inflow-stations-source',
+        layout: {
+          visibility: 'none',
+          'icon-image': 'barrage-icon',
+          // Key (highlighted) stations render at the former "others" size; the rest smaller still.
+          'icon-size': ['case', ['get', 'highlight'], 0.21, 0.12],
+          'icon-allow-overlap': true,
+          'symbol-sort-key': ['case', ['get', 'highlight'], 0, 1], // highlighted draw on top
+          'text-field': ['get', 'name'],
+          'text-font': ['DIN Pro Bold', 'Arial Unicode MS Bold'],
+          'text-size': ['case', ['get', 'highlight'], 15, 9],
+          'text-offset': [0, 1.1],
+          'text-anchor': 'top',
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': ['case', ['get', 'highlight'], '#ffd21a', '#eaf2ff'],
+          'text-halo-color': '#0a1220',
+          'text-halo-width': 1.6,
+        },
+      });
+
+      // Hover tooltip with the current snapshot reading.
+      const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, className: 'basin-tooltip', maxWidth: '260px' });
+      map.on('mousemove', 'live-inflow-stations-layer', (e) => {
+        if (!e.features || !e.features.length) return;
+        map.getCanvas().style.cursor = 'pointer';
+        const p = e.features[0].properties;
+        const row = (label, value) => (value ? `<div><span style="color:#8899aa;">${label}:</span> ${value}</div>` : '');
+        const html = `
+          <div style="padding:8px 12px;font-family:sans-serif;font-size:13px;background:#1e1e2e;color:#f0f0f0;border-radius:8px;line-height:1.5;">
+            <div style="font-weight:700;color:${p.highlight ? '#fbbf24' : '#7df9ff'};font-size:14px;margin-bottom:4px;">${p.highlight ? '★ ' : ''}${p.name} <span style="color:#8899aa;font-weight:600;">· ${p.kind}</span></div>
+            ${row('River', p.river)}
+            ${row('Status', p.status)}
+            ${row('Inflow', p.inflowDischarge ? `${p.inflowDischarge} cs` : '')}
+            ${row('Outflow', p.outflowDischarge ? `${p.outflowDischarge} cs` : '')}
+            <div style="margin-top:5px;color:${p.apiName ? '#34ff9e' : '#9fb2d6'};font-weight:700;">${p.apiName ? 'Click for monthly MAF →' : 'No MAF history'}</div>
+          </div>`;
+        popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+      map.on('mouseleave', 'live-inflow-stations-layer', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      // Click a station -> open its chart modal (driven by the store).
+      map.on('click', 'live-inflow-stations-layer', (e) => {
+        if (!e.features || !e.features.length) return;
+        useMapStore.getState().openInflowStation({ ...e.features[0].properties });
+      });
+
+      // Animate the pulse ring (one rAF loop per map; survives style reloads).
+      if (!map.__inflowPulseRAF) {
+        const PERIOD = 1600; // ms per pulse
+        const animatePulse = (ts) => {
+          map.__inflowPulseRAF = requestAnimationFrame(animatePulse);
+          const id = 'live-inflow-stations-pulse';
+          if (!map.getLayer(id) || map.getLayoutProperty(id, 'visibility') !== 'visible') return;
+          const t = (ts % PERIOD) / PERIOD; // 0..1
+          map.setPaintProperty(id, 'circle-radius', 11 + t * 22);
+          map.setPaintProperty(id, 'circle-opacity', 0.4 * (1 - t));
+          map.setPaintProperty(id, 'circle-stroke-opacity', 0.9 * (1 - t));
+        };
+        map.__inflowPulseRAF = requestAnimationFrame(animatePulse);
+      }
+
+      console.log(`✓ Live Inflow Stations loaded (${locations.length} stations)`);
+    } catch (err) {
+      console.warn('Could not load Live Inflow Stations:', err.message);
+    }
+  }, []);
+
   // Initialize all layers - OPTIMIZED: Only load essential layers on startup
   const initializeAllLayers = useCallback(async (map) => {
     // Boundary layers (WMS) - lightweight, just tile URLs
@@ -1700,6 +1815,7 @@ const MapContainer = () => {
       'glacialBasins': ['glacial-basins-fill', 'glacial-basins-outline'],
       'hillTorrents': ['hill-torrents-fill', 'hill-torrents-outline'],
       'wapdaProposed': 'wapda-proposed-layer',
+      'liveInflowStations': ['live-inflow-stations-pulse', 'live-inflow-stations-layer'],
       'industries': 'industries-layer',
       'indus': 'indus-layer',
       'jhelum': 'jhelum-layer',
@@ -1809,6 +1925,12 @@ const MapContainer = () => {
         loadedLayersCache.add('wapdaProposed');
       }
 
+      // Live Inflow Stations layer (fetched snapshot of dams/headworks)
+      if (layerId === 'liveInflowStations') {
+        await setupLiveInflowStations(map);
+        loadedLayersCache.add('liveInflowStations');
+      }
+
       // Industries layer
       if (layerId === 'industries') {
         await setupIndustries(map);
@@ -1907,7 +2029,7 @@ const MapContainer = () => {
     if (layerId === 'wapdaProposed' && visible) {
       map.flyTo({ center: [67.80059265, 24.358980], zoom: 13, essential: true });
     }
-  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupPrioritySites, setupGlacialBasins, setupHillTorrents, setupWapdaProposed, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
+  }, [setupWfsLayers, setupMajorRivers, setupRiverLayers, setupRiverTributaries, setupMainCanals, setupBranchCanals, setupDistributaryCanals, setupSubBasins, setupMonsoonBasin, setupMonsoonBasin2, setupSiteLocations, setupPrioritySites, setupGlacialBasins, setupHillTorrents, setupWapdaProposed, setupLiveInflowStations, setupIndustries, setupETLayers, setupPrecipitationLayers, setupSnowCoverLayers, setupTemperatureLayers, setupCoastalLayers]);
 
   const initializeMap = useCallback(() => {
     if (mapRef.current || !mapContainerRef.current || mapInitializedRef.current) return;
@@ -2176,6 +2298,7 @@ const MapContainer = () => {
       <SubBasinsModal />
       <DamLevelsModal />
       <LiveInflowsModal />
+      <LocationInflowsModal />
       <div id="map-modal-portal" />
 
       {activeLayerOrder.length >= 2 && (

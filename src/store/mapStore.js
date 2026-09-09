@@ -155,6 +155,14 @@ export const useMapStore = create((set, get) => ({
   showLiveInflowsModal: false,
   setShowLiveInflowsModal: (v) => set({ showLiveInflowsModal: v }),
 
+  // Live Inflows by Location — selected station (set by clicking a map marker)
+  // and the monthly-MAF chart modal it drives.
+  showLocationInflowsModal: false,
+  setShowLocationInflowsModal: (v) => set({ showLocationInflowsModal: v }),
+  inflowStation: null,
+  // Select a station and open its chart modal in one call.
+  openInflowStation: (station) => set({ inflowStation: station, showLocationInflowsModal: true }),
+
   // Map fullscreen (CSS-based)
   mapFullscreen: false,
   setMapFullscreen: (v) => set({ mapFullscreen: v }),

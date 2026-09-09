@@ -523,6 +523,15 @@
 .report-btn-projections { --accent: #fbbf24; }
 .report-btn-inddom      { --accent: #fb923c; }
 .report-btn-agri        { --accent: #f472b6; }
+.report-btn-liveinflows { --accent: #38bdf8; }
+.report-btn-locinflows  { --accent: #f87171; }
+
+/* Active (toggled-on) state for toggle-type report buttons */
+.report-btn.active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: var(--accent);
+}
+.report-btn.active .report-btn-go { opacity: 1; transform: translateX(0); }
 
 .catchment-inflows-btn {
   width: 100%;
